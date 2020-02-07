@@ -15,7 +15,7 @@ The LightStep OpenTelemetry Exporter is a trace exporter that sends span data to
 ## Usage
 ```java
 
-// Instantiat the exporter
+// Instantiate the exporter
 LightStepSpanExporter exporter =
         LightStepSpanExporter.newBuilder()
             .withAccessToken("{your_access_token}")
