@@ -1,4 +1,4 @@
-[![Apache-2.0 license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Circle CI](https://circleci.com/gh/lightstep/opentelemetry-exporter-java.svg?style=shield)](https://circleci.com/gh/lightstep/opentelemetry-exporter-java) [![Apache-2.0 license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # LightStep OpenTelemetry Exporter
 
@@ -7,7 +7,7 @@ The LightStep OpenTelemetry Exporter is a trace exporter that sends span data to
 ```xml
 <dependency>
     <groupId>com.lightstep.opentelemetry</groupId>
-    <artifactId>lightstep-opentelemetry-exporter</artifactId>
+    <artifactId>opentelemetry-exporter-java</artifactId>
     <version>VERSION</version>
 </dependency>
 ```
