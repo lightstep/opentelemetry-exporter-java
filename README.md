@@ -23,6 +23,10 @@ LightStepSpanExporter exporter =
             .withCollectorPort("{lightstep_port}")
             .withCollectorProtocol("{lightstep_protocol}")
             .build();
+
+// Add Span Processor with LightStep exporter
+OpenTelemetrySdk.getTracerRegistry()
+       .addSpanProcessor(SimpleSpansProcessor.newBuilder(exporter).build());
 ```
 
 ## License
