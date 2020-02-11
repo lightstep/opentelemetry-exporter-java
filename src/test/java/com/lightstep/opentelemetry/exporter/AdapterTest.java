@@ -293,6 +293,10 @@ public class AdapterTest {
     final TraceId traceId = TraceId.fromLowerBase16(TRACE_ID, 0);
     final long traceIdLong = Adapter.traceIdToLong(traceId);
     assertEquals(4126161779880129985L, traceIdLong);
+
+    final TraceId traceId2 = new TraceId(123456789L, 0L);
+    final long traceIdLong2 = Adapter.traceIdToLong(traceId2);
+    assertEquals(123456789L, traceIdLong2);
   }
 
   @Test
@@ -300,5 +304,9 @@ public class AdapterTest {
     final SpanId spanId = SpanId.fromLowerBase16(SPAN_ID, 0);
     final long spanIdLong = Adapter.spanIdToLong(spanId);
     assertEquals(14611542L, spanIdLong);
+
+    final SpanId spanId2 = new SpanId(123456789L);
+    final long spanIdLong2 = Adapter.spanIdToLong(spanId2);
+    assertEquals(123456789L, spanIdLong2);
   }
 }
