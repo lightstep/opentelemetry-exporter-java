@@ -42,6 +42,7 @@ public class App {
       Thread.sleep(5000);
     } catch (InterruptedException ignore) {
     }
+    OpenTelemetrySdk.getTracerRegistry().shutdown();
     System.out.println("Bye");
   }
 
