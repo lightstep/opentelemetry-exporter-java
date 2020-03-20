@@ -11,14 +11,15 @@ import com.lightstep.tracer.grpc.Reference;
 import com.lightstep.tracer.grpc.Reference.Relationship;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
+import io.opentelemetry.common.AttributeValue;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
-import io.opentelemetry.trace.AttributeValue;
-import io.opentelemetry.trace.Link;
 import io.opentelemetry.trace.SpanId;
 import io.opentelemetry.trace.TraceId;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,7 +45,7 @@ final class Adapter {
    * @return the collection of LightStep spans
    * @see #toLightStepSpan(SpanData)
    */
-  static List<Span> toLightStepSpans(List<SpanData> spans) {
+  static List<Span> toLightStepSpans(Collection<SpanData> spans) {
     List<Span> converted = new ArrayList<>();
     for (SpanData span : spans) {
       converted.add(toLightStepSpan(span));
