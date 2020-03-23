@@ -18,14 +18,14 @@ The LightStep OpenTelemetry Exporter is a trace exporter that sends span data to
 // Instantiate the exporter
 LightStepSpanExporter exporter =
         LightStepSpanExporter.newBuilder()
-            .withAccessToken("{your_access_token}")
-            .withCollectorHost("{lightstep_host}")
-            .withCollectorPort("{lightstep_port}")
-            .withCollectorProtocol("{lightstep_protocol}")
+            .setAccessToken("{your_access_token}")
+            .setCollectorHost("{lightstep_host}")
+            .setCollectorPort("{lightstep_port}")
+            .setCollectorProtocol("{lightstep_protocol}")
             .build();
 
 // Add Span Processor with LightStep exporter
-OpenTelemetrySdk.getTracerRegistry()
+OpenTelemetrySdk.getTracerProvider()
        .addSpanProcessor(SimpleSpansProcessor.newBuilder(exporter).build());
 ```
 

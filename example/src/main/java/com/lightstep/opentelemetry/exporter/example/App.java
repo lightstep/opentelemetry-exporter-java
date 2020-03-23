@@ -16,17 +16,17 @@ public class App {
     final Properties properties = loadConfig(args);
 
     Tracer tracer =
-        OpenTelemetry.getTracerRegistry().get("LightStepExample");
+        OpenTelemetry.getTracerProvider().get("LightStepExample");
 
     LightStepSpanExporter lightStepSpanExporter = LightStepSpanExporter.newBuilder()
-        .withAccessToken(properties.getProperty("access_token"))
-        .withCollectorHost(properties.getProperty("collector_host"))
-        .withCollectorPort(Integer.parseInt(properties.getProperty("collector_port")))
-        .withCollectorProtocol(properties.getProperty("collector_protocol"))
-        .withComponentName(properties.getProperty("component_name"))
+        .setAccessToken(properties.getProperty("access_token"))
+        .setCollectorHost(properties.getProperty("collector_host"))
+        .setCollectorPort(Integer.parseInt(properties.getProperty("collector_port")))
+        .setCollectorProtocol(properties.getProperty("collector_protocol"))
+        .setComponentName(properties.getProperty("component_name"))
         .build();
 
-    OpenTelemetrySdk.getTracerRegistry()
+    OpenTelemetrySdk.getTracerProvider()
         .addSpanProcessor(SimpleSpansProcessor.newBuilder(lightStepSpanExporter).build());
 
     Span span = tracer.spanBuilder("start example").setSpanKind(Kind.CLIENT).startSpan();
@@ -42,7 +42,7 @@ public class App {
       Thread.sleep(5000);
     } catch (InterruptedException ignore) {
     }
-    OpenTelemetrySdk.getTracerRegistry().shutdown();
+    OpenTelemetrySdk.getTracerProvider().shutdown();
     System.out.println("Bye");
   }
 

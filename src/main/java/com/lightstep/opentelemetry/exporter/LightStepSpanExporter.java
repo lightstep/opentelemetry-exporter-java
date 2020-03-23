@@ -10,6 +10,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -141,7 +142,7 @@ public class LightStepSpanExporter implements SpanExporter {
    * @return the result of the operation
    */
   @Override
-  public ResultCode export(List<SpanData> spans) {
+  public ResultCode export(Collection<SpanData> spans) {
     final long guid = generateRandomGuid();
 
     ReportRequest request =
@@ -170,9 +171,7 @@ public class LightStepSpanExporter implements SpanExporter {
             .addAllSpans(Adapter.toLightStepSpans(spans))
             .build();
 
-    Response response = null;
-    try {
-      response = client.newCall(toRequest(request)).execute();
+    try (Response response = client.newCall(toRequest(request)).execute()) {
       if (!response.isSuccessful()) {
         logger.log(Level.WARNING, "Failed to post spans to collector. " + response.toString());
         return ResultCode.FAILED_NOT_RETRYABLE;
@@ -197,10 +196,6 @@ public class LightStepSpanExporter implements SpanExporter {
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Failed to post spans", e);
       return ResultCode.FAILED_NOT_RETRYABLE;
-    } finally {
-      if (response != null) {
-        response.close();
-      }
     }
   }
 
@@ -258,7 +253,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @return this builder's instance
      * @throws IllegalArgumentException If the collectorHost argument is invalid.
      */
-    public Builder withCollectorHost(String collectorHost) {
+    public Builder setCollectorHost(String collectorHost) {
       if (collectorHost == null || "".equals(collectorHost.trim())) {
         throw new IllegalArgumentException("Invalid collector host: " + collectorHost);
       }
@@ -275,7 +270,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @return this builder's instance
      * @throws IllegalArgumentException If the collectorPort is invalid.
      */
-    public Builder withCollectorPort(int collectorPort) {
+    public Builder setCollectorPort(int collectorPort) {
       if (collectorPort <= 0) {
         throw new IllegalArgumentException("Invalid collector port: " + collectorPort);
       }
@@ -290,7 +285,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @return this builder's instance
      * @throws IllegalArgumentException If the protocol argument is invalid.
      */
-    public Builder withCollectorProtocol(String protocol) {
+    public Builder setCollectorProtocol(String protocol) {
       if (!PROTOCOL_HTTPS.equals(protocol) && !PROTOCOL_HTTP.equals(protocol)) {
         throw new IllegalArgumentException("Invalid protocol for collector: " + protocol);
       }
@@ -305,7 +300,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * the collector when sending a report.
      * @return this builder's instance
      */
-    public Builder withDeadlineMillis(long deadlineMillis) {
+    public Builder setDeadlineMillis(long deadlineMillis) {
       this.deadlineMillis = deadlineMillis;
       return this;
     }
@@ -316,7 +311,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @param accessToken Your specific token for LightStep access.
      * @return this builder's instance
      */
-    public Builder withAccessToken(String accessToken) {
+    public Builder setAccessToken(String accessToken) {
       this.accessToken = accessToken;
       return this;
     }
@@ -328,7 +323,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @param okHttpDns the Dns service object.
      * @return this builder's instance
      */
-    public Builder withOkHttpDns(OkHttpDns okHttpDns) {
+    public Builder setOkHttpDns(OkHttpDns okHttpDns) {
       if (okHttpDns == null) {
         throw new IllegalArgumentException("dns cannot be null");
       } else {
@@ -343,7 +338,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * @param name The name of the component being traced.
      * @return this builder's instance
      */
-    public Builder withComponentName(String name) {
+    public Builder setComponentName(String name) {
       this.componentName = name;
       return this;
     }
@@ -358,7 +353,7 @@ public class LightStepSpanExporter implements SpanExporter {
           StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
           if (st.hasMoreTokens()) {
             String name = st.nextToken();
-            withComponentName(name);
+            setComponentName(name);
           }
         }
       }

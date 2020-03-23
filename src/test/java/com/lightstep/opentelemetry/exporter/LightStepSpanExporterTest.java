@@ -14,8 +14,8 @@ import com.lightstep.tracer.grpc.Reporter;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.export.SpanExporter.ResultCode;
-import io.opentelemetry.trace.Link;
 import io.opentelemetry.trace.Span.Kind;
 import io.opentelemetry.trace.SpanId;
 import io.opentelemetry.trace.Status;
@@ -43,10 +43,10 @@ public class LightStepSpanExporterTest {
 
     LightStepSpanExporter exporter =
         LightStepSpanExporter.newBuilder()
-            .withAccessToken("token")
-            .withCollectorHost("localhost")
-            .withCollectorPort(wireMockRule.port())
-            .withCollectorProtocol("http")
+            .setAccessToken("token")
+            .setCollectorHost("localhost")
+            .setCollectorPort(wireMockRule.port())
+            .setCollectorProtocol("http")
             .build();
 
     long duration = 900; // ms
@@ -66,7 +66,6 @@ public class LightStepSpanExporterTest {
             .setLinks(Collections.<Link>emptyList())
             .setTotalRecordedLinks(0)
             .setTotalRecordedEvents(0)
-            .setNumberOfChildren(0)
             .build();
 
     final ResultCode resultCode = exporter.export(Collections.singletonList(spanData));

@@ -11,11 +11,11 @@ import com.lightstep.tracer.grpc.KeyValue;
 import com.lightstep.tracer.grpc.Log;
 import com.lightstep.tracer.grpc.Reference;
 import com.lightstep.tracer.grpc.Reference.Relationship;
+import io.opentelemetry.common.AttributeValue;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
-import io.opentelemetry.trace.AttributeValue;
-import io.opentelemetry.trace.Link;
 import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.SpanContext;
 import io.opentelemetry.trace.SpanId;
@@ -59,9 +59,8 @@ public class AdapterTest {
         .setLinks(Collections.singletonList(link))
         .setTotalRecordedLinks(1)
         .setKind(Span.Kind.SERVER)
-        .setResource(Resource.create(Collections.<String, String>emptyMap()))
+        .setResource(Resource.create(Collections.<String, AttributeValue>emptyMap()))
         .setStatus(Status.OK)
-        .setNumberOfChildren(0)
         .build();
   }
 
@@ -282,7 +281,6 @@ public class AdapterTest {
             .setStatus(Status.CANCELLED)
             .setTotalRecordedEvents(0)
             .setTotalRecordedLinks(0)
-            .setNumberOfChildren(0)
             .build();
 
     assertNotNull(Adapter.toLightStepSpan(span));
