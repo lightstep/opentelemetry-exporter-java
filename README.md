@@ -13,25 +13,34 @@ The LightStep OpenTelemetry Exporter is a trace exporter that sends span data to
 ```
 
 ## Usage
+
+### Manual configuration
+
 ```java
+// Create builder
+Builder builder = LightStepSpanExporter.newBuilder()
+                      .setAccessToken("{your_access_token}")
+                      .setCollectorHost("{lightstep_host}")
+                      .setCollectorPort("{lightstep_port}")
+                      .setCollectorProtocol("{lightstep_protocol}");
 
 // Instantiate the exporter
-LightStepSpanExporter exporter =
-        LightStepSpanExporter.newBuilder()
-            .setAccessToken("{your_access_token}")
-            .setCollectorHost("{lightstep_host}")
-            .setCollectorPort("{lightstep_port}")
-            .setCollectorProtocol("{lightstep_protocol}")
-            .build();
+LightStepSpanExporter exporter = builder.build();
 
 // Add Span Processor with LightStep exporter
 OpenTelemetrySdk.getTracerProvider()
        .addSpanProcessor(SimpleSpansProcessor.newBuilder(exporter).build());
 ```
 
-## Configuration from system properties and environmental variables
+### Configuration from system properties and environmental variables
 
 LightStep exporter can be configured by system properties and environmental variables:
+
+```java
+Builder builder = LightStepSpanExporter.Builder.fromEnv();
+```
+
+Supported system properties and environmental variables:
 
 * `LS_COLLECTOR_PROTOCOL` - protocol which will be used when sending data to the tracer, `http` or `https`, default is `https`
 * `LS_COLLECTOR_PORT` -  port to which the tracer will send data, default is `443`
@@ -40,9 +49,10 @@ LightStep exporter can be configured by system properties and environmental vari
 * `LS_COMPONENT_NAME` - name of the component being traced, default is Java runtime command
 * `LS_ACCESS_TOKEN` - token for LightStep access
 
-An example of LightStep exporter initialization:
+### Easy initialization
+
 ```java
-Builder builder = LightStepSpanExporter.Builder.fromEnv();
+// Installs exporter into tracer SDK default provider with batching span processor.
 builder.install();
 ```
 
