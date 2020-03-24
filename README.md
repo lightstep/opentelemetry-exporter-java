@@ -33,7 +33,7 @@ OpenTelemetrySdk.getTracerProvider()
 
 LightStep exporter can be configured by system properties and environmental variables:
 
-* `LS_COLLECTOR_PROTOCOL` - protocol which will be used when sending data to the tracer, `HTTP` or `HTTPS`, default is `HTTPS`
+* `LS_COLLECTOR_PROTOCOL` - protocol which will be used when sending data to the tracer, `http` or `https`, default is `https`
 * `LS_COLLECTOR_PORT` -  port to which the tracer will send data, default is `443`
 * `LS_COLLECTOR_HOST` -  host to which the tracer will send data, default is `collector-grpc.lightstep.com`
 * `LS_DEADLINE_MILLIS` - maximum amount of time the tracer should wait for a response from the collector when sending a report, default is 30000.
@@ -43,7 +43,7 @@ LightStep exporter can be configured by system properties and environmental vari
 An example of LightStep exporter initialization:
 ```java
 Builder builder = LightStepSpanExporter.Builder.fromEnv();
-builder.install(OpenTelemetrySdk.getTracerProvider());
+builder.install();
 ```
 
 ## License

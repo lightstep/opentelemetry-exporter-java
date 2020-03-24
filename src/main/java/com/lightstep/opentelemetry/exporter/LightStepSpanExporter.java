@@ -5,6 +5,7 @@ import com.lightstep.tracer.grpc.KeyValue;
 import com.lightstep.tracer.grpc.ReportRequest;
 import com.lightstep.tracer.grpc.ReportResponse;
 import com.lightstep.tracer.grpc.Reporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.BatchSpansProcessor;
@@ -425,6 +426,14 @@ public class LightStepSpanExporter implements SpanExporter {
     public void install(TracerSdkProvider tracerSdkProvider) throws MalformedURLException {
       BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
       tracerSdkProvider.addSpanProcessor(spansProcessor);
+    }
+
+    /**
+     * Installs exporter into tracer SDK default provider with batching span processor.
+     */
+    public void install() throws MalformedURLException {
+      BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
+      OpenTelemetrySdk.getTracerProvider().addSpanProcessor(spansProcessor);
     }
 
     private static String getProperty(String name, String defaultValue) {
