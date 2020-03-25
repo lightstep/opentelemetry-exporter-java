@@ -5,7 +5,10 @@ import com.lightstep.tracer.grpc.KeyValue;
 import com.lightstep.tracer.grpc.ReportRequest;
 import com.lightstep.tracer.grpc.ReportResponse;
 import com.lightstep.tracer.grpc.Reporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.export.BatchSpansProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -240,10 +243,28 @@ public class LightStepSpanExporter implements SpanExporter {
     private int collectorPort = -1;
     private String collectorProtocol = PROTOCOL_HTTPS;
     private String collectorHost = DEFAULT_HOST;
-    private long deadlineMillis;
-    private String accessToken;
+    private long deadlineMillis = DEFAULT_DEADLINE_MILLIS;
+    private String accessToken = "";
     private OkHttpDns okHttpDns;
     private String componentName;
+
+    /**
+     * Creates builder from system properties and environmental variables.
+     *
+     * @return this builder's instance
+     */
+    public static Builder fromEnv() {
+      Builder builder = new Builder();
+      builder.collectorProtocol = getProperty("LS_COLLECTOR_PROTOCOL", PROTOCOL_HTTPS);
+      builder.collectorPort = Integer
+          .parseInt(getProperty("LS_COLLECTOR_PORT", String.valueOf(DEFAULT_SECURE_PORT)));
+      builder.collectorHost = getProperty("LS_COLLECTOR_HOST", DEFAULT_HOST);
+      builder.deadlineMillis = Long
+          .parseLong(getProperty("LS_DEADLINE_MILLIS", String.valueOf(DEFAULT_DEADLINE_MILLIS)));
+      builder.componentName = getProperty("LS_COMPONENT_NAME", defaultComponentName());
+      builder.accessToken = getProperty("LS_ACCESS_TOKEN", "");
+      return builder;
+    }
 
     /**
      * Sets the host to which the tracer will send data. If not set, will default to the primary
@@ -306,7 +327,7 @@ public class LightStepSpanExporter implements SpanExporter {
     }
 
     /**
-     * Sets the unique identifier for this application.
+     * Sets the token for LightStep access
      *
      * @param accessToken Your specific token for LightStep access.
      * @return this builder's instance
@@ -346,17 +367,21 @@ public class LightStepSpanExporter implements SpanExporter {
     /**
      * If not set, provides a default value for the component name.
      */
-    private void defaultComponentName() {
+    private void setDefaultComponentName() {
       if (componentName == null) {
-        String componentNameSystemProperty = System.getProperty(COMPONENT_NAME_SYSTEM_PROPERTY_KEY);
-        if (componentNameSystemProperty != null) {
-          StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
-          if (st.hasMoreTokens()) {
-            String name = st.nextToken();
-            setComponentName(name);
-          }
+        setComponentName(defaultComponentName());
+      }
+    }
+
+    private static String defaultComponentName() {
+      String componentNameSystemProperty = System.getProperty(COMPONENT_NAME_SYSTEM_PROPERTY_KEY);
+      if (componentNameSystemProperty != null) {
+        StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
+        if (st.hasMoreTokens()) {
+          return st.nextToken();
         }
       }
+      return null;
     }
 
     private void defaultDeadlineMillis() {
@@ -388,9 +413,36 @@ public class LightStepSpanExporter implements SpanExporter {
      */
     public LightStepSpanExporter build() throws MalformedURLException {
       defaultDeadlineMillis();
-      defaultComponentName();
+      setDefaultComponentName();
       return new LightStepSpanExporter(
           getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, componentName);
     }
+
+    /**
+     * Installs exporter into tracer SDK provider with batching span processor.
+     *
+     * @param tracerSdkProvider tracer SDK provider
+     */
+    public void install(TracerSdkProvider tracerSdkProvider) throws MalformedURLException {
+      BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
+      tracerSdkProvider.addSpanProcessor(spansProcessor);
+    }
+
+    /**
+     * Installs exporter into tracer SDK default provider with batching span processor.
+     */
+    public void install() throws MalformedURLException {
+      BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
+      OpenTelemetrySdk.getTracerProvider().addSpanProcessor(spansProcessor);
+    }
+
+    private static String getProperty(String name, String defaultValue) {
+      String val = System.getProperty(name, System.getenv(name));
+      if (val == null || val.isEmpty()) {
+        return defaultValue;
+      }
+      return val;
+    }
   }
+
 }
