@@ -76,7 +76,7 @@ public class LightStepSpanExporterTest {
     final List<ServeEvent> events = WireMock.getAllServeEvents();
     assertEquals(1, events.size());
     final LoggedRequest loggedRequest = events.get(0).getRequest();
-    assertEquals("token", loggedRequest.getHeader(LightStepSpanExporter.LS_ACCESS_TOKEN));
+    assertEquals("token", loggedRequest.getHeader(LightStepSpanExporter.LIGHTSTEP_ACCESS_TOKEN));
     assertEquals(LightStepSpanExporter.MEDIA_TYPE_STRING, loggedRequest.getHeader("Content-Type"));
 
     final ReportRequest reportRequest = ReportRequest.parseFrom(loggedRequest.getBody());
