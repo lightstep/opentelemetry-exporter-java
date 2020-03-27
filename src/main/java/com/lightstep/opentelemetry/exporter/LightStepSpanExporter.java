@@ -36,7 +36,7 @@ import okhttp3.ResponseBody;
 @ThreadSafe
 public class LightStepSpanExporter implements SpanExporter {
   static final String MEDIA_TYPE_STRING = "application/octet-stream";
-  static final String LS_ACCESS_TOKEN = "Lightstep-Access-Token";
+  static final String LIGHTSTEP_ACCESS_TOKEN = "Lightstep-Access-Token";
   static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
   static final String PATH = "/api/v2/reports";
   private static final Logger logger = Logger.getLogger(LightStepSpanExporter.class.getName());
@@ -206,7 +206,7 @@ public class LightStepSpanExporter implements SpanExporter {
     return new Request.Builder()
         .url(this.collectorUrl)
         .post(RequestBody.create(MEDIA_TYPE, request.toByteArray()))
-        .addHeader(LS_ACCESS_TOKEN, request.getAuth().getAccessToken())
+        .addHeader(LIGHTSTEP_ACCESS_TOKEN, request.getAuth().getAccessToken())
         .build();
   }
 
@@ -255,14 +255,15 @@ public class LightStepSpanExporter implements SpanExporter {
      */
     public static Builder fromEnv() {
       Builder builder = new Builder();
-      builder.collectorProtocol = getProperty("LS_COLLECTOR_PROTOCOL", PROTOCOL_HTTPS);
+      builder.collectorProtocol = getProperty("LIGHTSTEP_COLLECTOR_PROTOCOL", PROTOCOL_HTTPS);
       builder.collectorPort = Integer
-          .parseInt(getProperty("LS_COLLECTOR_PORT", String.valueOf(DEFAULT_SECURE_PORT)));
-      builder.collectorHost = getProperty("LS_COLLECTOR_HOST", DEFAULT_HOST);
+          .parseInt(getProperty("LIGHTSTEP_COLLECTOR_PORT", String.valueOf(DEFAULT_SECURE_PORT)));
+      builder.collectorHost = getProperty("LIGHTSTEP_COLLECTOR_HOST", DEFAULT_HOST);
       builder.deadlineMillis = Long
-          .parseLong(getProperty("LS_DEADLINE_MILLIS", String.valueOf(DEFAULT_DEADLINE_MILLIS)));
-      builder.componentName = getProperty("LS_COMPONENT_NAME", defaultComponentName());
-      builder.accessToken = getProperty("LS_ACCESS_TOKEN", "");
+          .parseLong(
+              getProperty("LIGHTSTEP_DEADLINE_MILLIS", String.valueOf(DEFAULT_DEADLINE_MILLIS)));
+      builder.componentName = getProperty("LIGHTSTEP_COMPONENT_NAME", defaultComponentName());
+      builder.accessToken = getProperty("LIGHTSTEP_ACCESS_TOKEN", "");
       return builder;
     }
 
