@@ -42,7 +42,7 @@
   <distributionManagement>
     <repository>
       <id>lightstep-bintray</id>
-      <url>https://api.bintray.com/maven/lightstep/maven/opentelemetry-exporter-java/;publish=1
+      <url>https://api.bintray.com/maven/lightstep/maven/lightstep-opentelemetry-exporter/;publish=1
       </url>
     </repository>
   </distributionManagement>
