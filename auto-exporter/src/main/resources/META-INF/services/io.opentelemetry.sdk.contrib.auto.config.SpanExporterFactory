@@ -1,1 +1,1 @@
-com.lightstep.opentelemetry.exporter.auto.LighstepSpanExporterFactory
+com.lightstep.opentelemetry.exporter.auto.LightstepSpanExporterFactory

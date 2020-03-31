@@ -94,6 +94,18 @@
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <relocations>
+                <relocation>
+                  <pattern>okhttp</pattern>
+                  <shadedPattern>shaded.okhttp</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>io.grpc</pattern>
+                  <shadedPattern>shaded.io.grpc</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
           </execution>
         </executions>
       </plugin>
