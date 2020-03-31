@@ -8,8 +8,8 @@
   <artifactId>lightstep-opentelemetry-example</artifactId>
   <version>0.0.1</version>
 
-  <name>LightStep OpenTelemetry Exporter Example</name>
-  <description>LightStep OpenTelemetry Exporter Example</description>
+  <name>Lightstep OpenTelemetry Exporter Example</name>
+  <description>Lightstep OpenTelemetry Exporter Example</description>
 
   <properties>
     <maven.compiler.source>1.7</maven.compiler.source>

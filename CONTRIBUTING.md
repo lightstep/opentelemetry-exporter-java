@@ -1,4 +1,4 @@
-# LightStep Community Contributing Guide
+# Lightstep Community Contributing Guide
 
 First, 🎉 **thanks for contributing!** 🎉
 

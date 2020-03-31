@@ -8,12 +8,12 @@
   <artifactId>lightstep-opentelemetry-exporter</artifactId>
   <version>0.0.1</version>
 
-  <name>LightStep OpenTelemetry Exporter</name>
-  <description>LightStep OpenTelemetry Exporter</description>
+  <name>Lightstep OpenTelemetry Exporter</name>
+  <description>Lightstep OpenTelemetry Exporter</description>
   <url>https://github.com/lightstep/opentelemetry-exporter-java</url>
 
   <organization>
-    <name>LightStep</name>
+    <name>Lightstep</name>
     <url>http://lightstep.com/</url>
   </organization>
 
@@ -21,7 +21,7 @@
     <developer>
       <email>hello@lightstep.com</email>
       <id>lightstep</id>
-      <name>LightStep</name>
+      <name>Lightstep</name>
     </developer>
   </developers>
 

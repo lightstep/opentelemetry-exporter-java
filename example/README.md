@@ -1,4 +1,4 @@
-# LightStep Example
+# Lightstep Example
 
 ## Configuration
 
