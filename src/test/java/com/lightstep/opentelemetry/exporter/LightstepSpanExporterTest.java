@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class LightStepSpanExporterTest {
+public class LightstepSpanExporterTest {
   private static final String TRACE_ID = "39431247078c75c1af46e0665b912ea9";
   private static final String SPAN_ID = "1213141516171819";
 
@@ -38,11 +38,11 @@ public class LightStepSpanExporterTest {
     final byte[] response = ReportResponse.newBuilder().build().toByteArray();
 
     WireMock.stubFor(
-        WireMock.post(urlEqualTo(LightStepSpanExporter.PATH))
+        WireMock.post(urlEqualTo(LightstepSpanExporter.PATH))
             .willReturn(aResponse().withStatus(200).withBody(response)));
 
-    LightStepSpanExporter exporter =
-        LightStepSpanExporter.newBuilder()
+    LightstepSpanExporter exporter =
+        LightstepSpanExporter.newBuilder()
             .setAccessToken("token")
             .setCollectorHost("localhost")
             .setCollectorPort(wireMockRule.port())
@@ -76,8 +76,8 @@ public class LightStepSpanExporterTest {
     final List<ServeEvent> events = WireMock.getAllServeEvents();
     assertEquals(1, events.size());
     final LoggedRequest loggedRequest = events.get(0).getRequest();
-    assertEquals("token", loggedRequest.getHeader(LightStepSpanExporter.LIGHTSTEP_ACCESS_TOKEN));
-    assertEquals(LightStepSpanExporter.MEDIA_TYPE_STRING, loggedRequest.getHeader("Content-Type"));
+    assertEquals("token", loggedRequest.getHeader(LightstepSpanExporter.LIGHTSTEP_ACCESS_TOKEN));
+    assertEquals(LightstepSpanExporter.MEDIA_TYPE_STRING, loggedRequest.getHeader("Content-Type"));
 
     final ReportRequest reportRequest = ReportRequest.parseFrom(loggedRequest.getBody());
 
