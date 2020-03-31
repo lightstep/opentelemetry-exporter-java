@@ -122,7 +122,7 @@ public class AdapterTest {
     SpanData span = getSpanData(startMs, endMs);
     List<SpanData> spans = Collections.singletonList(span);
 
-    final List<com.lightstep.tracer.grpc.Span> lightStepSpans = Adapter.toLightStepSpans(spans);
+    final List<com.lightstep.tracer.grpc.Span> lightStepSpans = Adapter.toLightstepSpans(spans);
 
     // the span contents are checked somewhere else
     assertEquals(1, lightStepSpans.size());
@@ -135,7 +135,7 @@ public class AdapterTest {
     long endMs = startMs + duration;
 
     final SpanData span = getSpanData(startMs, endMs);
-    final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter.toLightStepSpan(span);
+    final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter.toLightstepSpan(span);
 
     assertEquals(4126161779880129985L, lightstepSpan.getSpanContext().getTraceId());
     assertEquals(14611542, lightstepSpan.getSpanContext().getSpanId());
@@ -173,24 +173,24 @@ public class AdapterTest {
   }
 
   @Test
-  public void testLightStepLogs() {
+  public void testLightstepLogs() {
     // prepare
     SpanData.TimedEvent timedEvents = getTimedEvent();
 
     // test
-    List<Log> logs = Adapter.toLightStepLogs(Collections.singletonList(timedEvents));
+    List<Log> logs = Adapter.toLightstepLogs(Collections.singletonList(timedEvents));
 
     // verify
     assertEquals(1, logs.size());
   }
 
   @Test
-  public void testLightStepLog() {
+  public void testLightstepLog() {
     // prepare
     SpanData.TimedEvent timedEvent = getTimedEvent();
 
     // test
-    Log log = Adapter.toLightStepLog(timedEvent);
+    Log log = Adapter.toLightstepLog(timedEvent);
 
     // verify
     assertEquals(2, log.getFieldsCount());
@@ -283,7 +283,7 @@ public class AdapterTest {
             .setTotalRecordedLinks(0)
             .build();
 
-    assertNotNull(Adapter.toLightStepSpan(span));
+    assertNotNull(Adapter.toLightstepSpan(span));
   }
 
   @Test

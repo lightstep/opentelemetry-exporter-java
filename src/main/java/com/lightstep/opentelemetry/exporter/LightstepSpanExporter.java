@@ -31,15 +31,15 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
- * Exports spans to LightStep via OkHttp, using LightStep's protobuf model.
+ * Exports spans to Lightstep via OkHttp, using Lightstep's protobuf model.
  */
 @ThreadSafe
-public class LightStepSpanExporter implements SpanExporter {
+public class LightstepSpanExporter implements SpanExporter {
   static final String MEDIA_TYPE_STRING = "application/octet-stream";
   static final String LIGHTSTEP_ACCESS_TOKEN = "Lightstep-Access-Token";
   static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
   static final String PATH = "/api/v2/reports";
-  private static final Logger logger = Logger.getLogger(LightStepSpanExporter.class.getName());
+  private static final Logger logger = Logger.getLogger(LightstepSpanExporter.class.getName());
   @Nullable
   private static final MediaType MEDIA_TYPE = MediaType.parse(MEDIA_TYPE_STRING);
   /**
@@ -95,17 +95,17 @@ public class LightStepSpanExporter implements SpanExporter {
   private final String componentName;
 
   /**
-   * Creates a new LightStep OkHttp Span Reporter.
+   * Creates a new Lightstep OkHttp Span Reporter.
    *
    * @param collectorUrl collector url.
    * @param deadlineMillis The maximum amount of time the tracer should wait for a response from the
    * collector when sending a report.
-   * @param accessToken Your specific token for LightStep access.
+   * @param accessToken Your specific token for Lightstep access.
    * @param okHttpDns DNS service used to lookup IP addresses for hostnames
    * @param componentName The component name attribute. If not set, will default to the Java runtime
    * command.
    */
-  private LightStepSpanExporter(
+  private LightstepSpanExporter(
       URL collectorUrl,
       long deadlineMillis,
       String accessToken,
@@ -139,7 +139,7 @@ public class LightStepSpanExporter implements SpanExporter {
   }
 
   /**
-   * Submits all the given spans in a single batch to the LightStep collector.
+   * Submits all the given spans in a single batch to the Lightstep collector.
    *
    * @param spans the list of sampled Spans to be exported.
    * @return the result of the operation
@@ -171,7 +171,7 @@ public class LightStepSpanExporter implements SpanExporter {
                             .setStringValue(System.getProperty("java.version"))
                             .build())
                     .build())
-            .addAllSpans(Adapter.toLightStepSpans(spans))
+            .addAllSpans(Adapter.toLightstepSpans(spans))
             .build();
 
     try (Response response = client.newCall(toRequest(request)).execute()) {
@@ -269,9 +269,9 @@ public class LightStepSpanExporter implements SpanExporter {
 
     /**
      * Sets the host to which the tracer will send data. If not set, will default to the primary
-     * LightStep collector address.
+     * Lightstep collector address.
      *
-     * @param collectorHost The hostname for the LightStep collector.
+     * @param collectorHost The hostname for the Lightstep collector.
      * @return this builder's instance
      * @throws IllegalArgumentException If the collectorHost argument is invalid.
      */
@@ -288,7 +288,7 @@ public class LightStepSpanExporter implements SpanExporter {
      * DEFAULT_SECURE_PORT} when the protocol is https and {@code DEFAULT_PLAINTEXT_PORT} when the
      * protocol is http.
      *
-     * @param collectorPort The port for the LightStep collector.
+     * @param collectorPort The port for the Lightstep collector.
      * @return this builder's instance
      * @throws IllegalArgumentException If the collectorPort is invalid.
      */
@@ -328,9 +328,9 @@ public class LightStepSpanExporter implements SpanExporter {
     }
 
     /**
-     * Sets the token for LightStep access
+     * Sets the token for Lightstep access
      *
-     * @param accessToken Your specific token for LightStep access.
+     * @param accessToken Your specific token for Lightstep access.
      * @return this builder's instance
      */
     public Builder setAccessToken(String accessToken) {
@@ -412,10 +412,10 @@ public class LightStepSpanExporter implements SpanExporter {
      * @return a new exporter's instance
      * @throws MalformedURLException if an unknown protocol or the port is a negative number
      */
-    public LightStepSpanExporter build() throws MalformedURLException {
+    public LightstepSpanExporter build() throws MalformedURLException {
       defaultDeadlineMillis();
       setDefaultComponentName();
-      return new LightStepSpanExporter(
+      return new LightstepSpanExporter(
           getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, componentName);
     }
 

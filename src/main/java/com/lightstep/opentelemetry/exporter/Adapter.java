@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Adapts OpenTelemetry objects to LightStep objects.
+ * Adapts OpenTelemetry objects to Lightstep objects.
  */
 @ThreadSafe
 final class Adapter {
@@ -39,27 +39,27 @@ final class Adapter {
   }
 
   /**
-   * Converts a list of {@link SpanData} into a collection of LightStep's {@link Span}.
+   * Converts a list of {@link SpanData} into a collection of Lightstep's {@link Span}.
    *
    * @param spans the list of spans to be converted
-   * @return the collection of LightStep spans
-   * @see #toLightStepSpan(SpanData)
+   * @return the collection of Lightstep spans
+   * @see #toLightstepSpan(SpanData)
    */
-  static List<Span> toLightStepSpans(Collection<SpanData> spans) {
+  static List<Span> toLightstepSpans(Collection<SpanData> spans) {
     List<Span> converted = new ArrayList<>();
     for (SpanData span : spans) {
-      converted.add(toLightStepSpan(span));
+      converted.add(toLightstepSpan(span));
     }
     return converted;
   }
 
   /**
-   * Converts a single {@link SpanData} into a LightStep's {@link Span}.
+   * Converts a single {@link SpanData} into a Lightstep's {@link Span}.
    *
    * @param spanData the spanData to be converted
-   * @return the LightStep span
+   * @return the Lightstep span
    */
-  static Span toLightStepSpan(SpanData spanData) {
+  static Span toLightstepSpan(SpanData spanData) {
     final Span.Builder builder = Span.newBuilder();
     builder.setOperationName(spanData.getName());
 
@@ -78,7 +78,7 @@ final class Adapter {
 
     builder.addAllTags(toKeyValues(spanData.getAttributes()));
 
-    builder.addAllLogs(toLightStepLogs(spanData.getTimedEvents()));
+    builder.addAllLogs(toLightstepLogs(spanData.getTimedEvents()));
 
     builder.addAllReferences(toReferences(spanData.getLinks()));
 
@@ -118,10 +118,10 @@ final class Adapter {
   }
 
   /**
-   * Converts {@link Link}s into a collection of LightStep's {@link Reference}.
+   * Converts {@link Link}s into a collection of Lightstep's {@link Reference}.
    *
    * @param links the span's links property to be converted
-   * @return a collection of LightStep span references
+   * @return a collection of Lightstep span references
    */
   @VisibleForTesting
   static List<Reference> toReferences(List<Link> links) {
@@ -133,10 +133,10 @@ final class Adapter {
   }
 
   /**
-   * Converts a single {@link Link} into a LightStep's {@link Reference}.
+   * Converts a single {@link Link} into a Lightstep's {@link Reference}.
    *
    * @param link the OpenTelemetry link to be converted
-   * @return the LightStep span reference
+   * @return the Lightstep span reference
    */
   @VisibleForTesting
   static Reference toReference(Link link) {
@@ -150,29 +150,29 @@ final class Adapter {
   }
 
   /**
-   * Converts {@link SpanData.TimedEvent}s into a collection of LightStep's {@link Log}.
+   * Converts {@link SpanData.TimedEvent}s into a collection of Lightstep's {@link Log}.
    *
    * @param timeEvents the timed events to be converted
-   * @return a collection of LightStep logs
-   * @see #toLightStepLog(TimedEvent)
+   * @return a collection of Lightstep logs
+   * @see #toLightstepLog(TimedEvent)
    */
   @VisibleForTesting
-  static List<Log> toLightStepLogs(List<TimedEvent> timeEvents) {
+  static List<Log> toLightstepLogs(List<TimedEvent> timeEvents) {
     final List<Log> logs = new ArrayList<>();
     for (TimedEvent timedEvent : timeEvents) {
-      logs.add(toLightStepLog(timedEvent));
+      logs.add(toLightstepLog(timedEvent));
     }
     return logs;
   }
 
   /**
-   * Converts a {@link SpanData.TimedEvent} into LightStep's {@link Log}.
+   * Converts a {@link SpanData.TimedEvent} into Lightstep's {@link Log}.
    *
    * @param timedEvent the timed event to be converted
-   * @return a LightStep log
+   * @return a Lightstep log
    */
   @VisibleForTesting
-  static Log toLightStepLog(TimedEvent timedEvent) {
+  static Log toLightstepLog(TimedEvent timedEvent) {
     final Log.Builder builder = Log.newBuilder();
     builder.setTimestamp(Timestamps.fromNanos(timedEvent.getEpochNanos()));
     builder.addFields(
@@ -183,10 +183,10 @@ final class Adapter {
   }
 
   /**
-   * Converts a map of attributes into a collection of LightStep's {@link KeyValue}.
+   * Converts a map of attributes into a collection of Lightstep's {@link KeyValue}.
    *
    * @param attributes the span attributes
-   * @return a collection of LightStep key values
+   * @return a collection of Lightstep key values
    * @see #toKeyValue(String, AttributeValue)
    */
   @VisibleForTesting
@@ -200,11 +200,11 @@ final class Adapter {
   }
 
   /**
-   * Converts the given key and {@link AttributeValue} into LightStep's {@link KeyValue}.
+   * Converts the given key and {@link AttributeValue} into Lightstep's {@link KeyValue}.
    *
    * @param key the entry key as string
    * @param value the entry value
-   * @return a LightStep key value
+   * @return a Lightstep key value
    */
   @VisibleForTesting
   static KeyValue toKeyValue(String key, AttributeValue value) {
