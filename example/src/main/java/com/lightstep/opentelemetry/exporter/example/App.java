@@ -1,6 +1,6 @@
 package com.lightstep.opentelemetry.exporter.example;
 
-import com.lightstep.opentelemetry.exporter.LightStepSpanExporter;
+import com.lightstep.opentelemetry.exporter.LightstepSpanExporter;
 import io.opentelemetry.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
@@ -16,9 +16,9 @@ public class App {
     final Properties properties = loadConfig(args);
 
     Tracer tracer =
-        OpenTelemetry.getTracerProvider().get("LightStepExample");
+        OpenTelemetry.getTracerProvider().get("LightstepExample");
 
-    LightStepSpanExporter lightStepSpanExporter = LightStepSpanExporter.newBuilder()
+    LightstepSpanExporter lightStepSpanExporter = LightstepSpanExporter.newBuilder()
         .setAccessToken(properties.getProperty("access_token"))
         .setCollectorHost(properties.getProperty("collector_host"))
         .setCollectorPort(Integer.parseInt(properties.getProperty("collector_port")))
