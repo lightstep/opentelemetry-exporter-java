@@ -68,6 +68,9 @@
             <id>attach-sources</id>
           </execution>
         </executions>
+        <configuration>
+          <includeDependencySources>true</includeDependencySources>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -95,6 +98,8 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <createSourcesJar>true</createSourcesJar>
+              <shadeSourcesContent>true</shadeSourcesContent>
               <relocations>
                 <relocation>
                   <pattern>okhttp</pattern>
