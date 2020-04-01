@@ -57,6 +57,12 @@ Supported system properties and environmental variables:
 builder.install();
 ```
 
+### Usage with OpenTelemetry Auto-Instrumentation
+
+A dedicated [artifact](auto-exporter/) is provided to be used with the `OpenTelemetry Auto-Instrumentation` agent.
+Observe configuration is specified through system properties and environment variables, as defined by
+`LightstepSpanExporter.Builder.fromEnv()`.
+
 ## License
 
 [Apache 2.0 License](./LICENSE).
