@@ -37,7 +37,7 @@ import okhttp3.ResponseBody;
 public class LightstepSpanExporter implements SpanExporter {
   static final String MEDIA_TYPE_STRING = "application/octet-stream";
   static final String LIGHTSTEP_ACCESS_TOKEN = "Lightstep-Access-Token";
-  static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
+  public static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
   static final String PATH = "/api/v2/reports";
   private static final Logger logger = Logger.getLogger(LightstepSpanExporter.class.getName());
   @Nullable
@@ -45,14 +45,14 @@ public class LightstepSpanExporter implements SpanExporter {
   /**
    * Default collector port for HTTPS.
    */
-  private static final int DEFAULT_SECURE_PORT = 443;
+  public static final int DEFAULT_SECURE_PORT = 443;
 
   /**
    * Default collector port for HTTP.
    */
   private static final int DEFAULT_PLAINTEXT_PORT = 80;
 
-  private static final String PROTOCOL_HTTPS = "https";
+  public static final String PROTOCOL_HTTPS = "https";
   private static final String PROTOCOL_HTTP = "http";
   private static final String GUID_KEY = "lightstep.guid";
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
@@ -64,7 +64,7 @@ public class LightstepSpanExporter implements SpanExporter {
    * Default duration the tracer should wait for a response from the collector when sending a
    * report.
    */
-  private static final long DEFAULT_DEADLINE_MILLIS = 30000;
+  public static final long DEFAULT_DEADLINE_MILLIS = 30000;
 
   /**
    * Java System property that will be used as the component name when no other value is provided.
@@ -374,7 +374,7 @@ public class LightstepSpanExporter implements SpanExporter {
       }
     }
 
-    private static String defaultComponentName() {
+    public static String defaultComponentName() {
       String componentNameSystemProperty = System.getProperty(COMPONENT_NAME_SYSTEM_PROPERTY_KEY);
       if (componentNameSystemProperty != null) {
         StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
