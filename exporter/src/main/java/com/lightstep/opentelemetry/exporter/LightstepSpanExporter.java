@@ -15,8 +15,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
-import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,41 +35,21 @@ import okhttp3.ResponseBody;
  */
 @ThreadSafe
 public class LightstepSpanExporter implements SpanExporter {
+  private static final Logger logger = Logger.getLogger(LightstepSpanExporter.class.getName());
+
   static final String MEDIA_TYPE_STRING = "application/octet-stream";
   static final String LIGHTSTEP_ACCESS_TOKEN = "Lightstep-Access-Token";
-  public static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
   static final String PATH = "/api/v2/reports";
-  private static final Logger logger = Logger.getLogger(LightstepSpanExporter.class.getName());
   @Nullable
   private static final MediaType MEDIA_TYPE = MediaType.parse(MEDIA_TYPE_STRING);
-  /**
-   * Default collector port for HTTPS.
-   */
-  public static final int DEFAULT_SECURE_PORT = 443;
 
-  /**
-   * Default collector port for HTTP.
-   */
-  private static final int DEFAULT_PLAINTEXT_PORT = 80;
-
-  public static final String PROTOCOL_HTTPS = "https";
-  private static final String PROTOCOL_HTTP = "http";
   private static final String GUID_KEY = "lightstep.guid";
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
   private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
   private static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
       "lightstep.tracer_platform_version";
 
-  /**
-   * Default duration the tracer should wait for a response from the collector when sending a
-   * report.
-   */
-  public static final long DEFAULT_DEADLINE_MILLIS = 30000;
 
-  /**
-   * Java System property that will be used as the component name when no other value is provided.
-   */
-  private static final String COMPONENT_NAME_SYSTEM_PROPERTY_KEY = "sun.java.command";
   /**
    * Thread-specific random number generators. Each is seeded with the thread ID, so the sequence of
    * pseudo-random numbers are unique between threads.
@@ -241,12 +221,41 @@ public class LightstepSpanExporter implements SpanExporter {
    */
   public static class Builder {
     private int collectorPort = -1;
-    private String collectorProtocol = PROTOCOL_HTTPS;
-    private String collectorHost = DEFAULT_HOST;
-    private long deadlineMillis = DEFAULT_DEADLINE_MILLIS;
+    private String collectorProtocol = LightstepConfig.PROTOCOL_HTTPS;
+    private String collectorHost = LightstepConfig.DEFAULT_HOST;
+    private long deadlineMillis = LightstepConfig.DEFAULT_DEADLINE_MILLIS;
     private String accessToken = "";
     private OkHttpDns okHttpDns;
     private String componentName;
+
+    /**
+     * Creates builder from configuration file
+     *
+     * @param configFile path to configuration file
+     * @return this builder's instance
+     */
+    public static Builder fromConfigFile(final String configFile) {
+      final Properties properties = LightstepConfig.loadConfig(configFile);
+      final Builder builder = new Builder();
+      builder.collectorProtocol = properties.getProperty(
+          LightstepConfig.COLLECTOR_PROTOCOL_PROPERTY_KEY, LightstepConfig.PROTOCOL_HTTPS);
+      builder.collectorHost = properties
+          .getProperty(LightstepConfig.COLLECTOR_HOST_PROPERTY_KEY,
+              LightstepConfig.DEFAULT_HOST);
+      builder.collectorPort = Integer
+          .parseInt(properties.getProperty(LightstepConfig.COLLECTOR_PORT_PROPERTY_KEY,
+              String.valueOf(LightstepConfig.DEFAULT_SECURE_PORT)));
+      builder.accessToken = properties
+          .getProperty(LightstepConfig.ACCESS_TOKEN_PROPERTY_KEY, "");
+      builder.deadlineMillis = Long.parseLong(properties
+          .getProperty(LightstepConfig.DEADLINE_MILLIS_PROPERTY_KEY,
+              String.valueOf(LightstepConfig.DEFAULT_DEADLINE_MILLIS)));
+      builder.componentName = properties
+          .getProperty(LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
+              LightstepConfig.defaultComponentName());
+
+      return builder;
+    }
 
     /**
      * Creates builder from system properties and environmental variables.
@@ -254,16 +263,21 @@ public class LightstepSpanExporter implements SpanExporter {
      * @return this builder's instance
      */
     public static Builder fromEnv() {
-      Builder builder = new Builder();
-      builder.collectorProtocol = getProperty("LIGHTSTEP_COLLECTOR_PROTOCOL", PROTOCOL_HTTPS);
+      final Builder builder = new Builder();
+      builder.collectorProtocol = getProperty(LightstepConfig.COLLECTOR_PROTOCOL,
+          LightstepConfig.PROTOCOL_HTTPS);
       builder.collectorPort = Integer
-          .parseInt(getProperty("LIGHTSTEP_COLLECTOR_PORT", String.valueOf(DEFAULT_SECURE_PORT)));
-      builder.collectorHost = getProperty("LIGHTSTEP_COLLECTOR_HOST", DEFAULT_HOST);
-      builder.deadlineMillis = Long
-          .parseLong(
-              getProperty("LIGHTSTEP_DEADLINE_MILLIS", String.valueOf(DEFAULT_DEADLINE_MILLIS)));
-      builder.componentName = getProperty("LIGHTSTEP_COMPONENT_NAME", defaultComponentName());
-      builder.accessToken = getProperty("LIGHTSTEP_ACCESS_TOKEN", "");
+          .parseInt(getProperty(LightstepConfig.COLLECTOR_PORT,
+              String.valueOf(LightstepConfig.DEFAULT_SECURE_PORT)));
+      builder.collectorHost = getProperty(LightstepConfig.COLLECTOR_HOST,
+          LightstepConfig.DEFAULT_HOST);
+      builder.deadlineMillis = Long.parseLong(
+          getProperty(LightstepConfig.DEADLINE_MILLIS,
+              String.valueOf(LightstepConfig.DEFAULT_DEADLINE_MILLIS)));
+      builder.componentName = getProperty(LightstepConfig.COMPONENT_NAME,
+          LightstepConfig.defaultComponentName());
+      builder.accessToken = getProperty(LightstepConfig.ACCESS_TOKEN, "");
+
       return builder;
     }
 
@@ -308,7 +322,8 @@ public class LightstepSpanExporter implements SpanExporter {
      * @throws IllegalArgumentException If the protocol argument is invalid.
      */
     public Builder setCollectorProtocol(String protocol) {
-      if (!PROTOCOL_HTTPS.equals(protocol) && !PROTOCOL_HTTP.equals(protocol)) {
+      if (!LightstepConfig.PROTOCOL_HTTPS.equals(protocol) && !LightstepConfig.PROTOCOL_HTTP
+          .equals(protocol)) {
         throw new IllegalArgumentException("Invalid protocol for collector: " + protocol);
       }
       this.collectorProtocol = protocol;
@@ -370,34 +385,23 @@ public class LightstepSpanExporter implements SpanExporter {
      */
     private void setDefaultComponentName() {
       if (componentName == null) {
-        setComponentName(defaultComponentName());
+        setComponentName(LightstepConfig.defaultComponentName());
       }
-    }
-
-    public static String defaultComponentName() {
-      String componentNameSystemProperty = System.getProperty(COMPONENT_NAME_SYSTEM_PROPERTY_KEY);
-      if (componentNameSystemProperty != null) {
-        StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
-        if (st.hasMoreTokens()) {
-          return st.nextToken();
-        }
-      }
-      return null;
     }
 
     private void defaultDeadlineMillis() {
       if (deadlineMillis < 0) {
-        deadlineMillis = DEFAULT_DEADLINE_MILLIS;
+        deadlineMillis = LightstepConfig.DEFAULT_DEADLINE_MILLIS;
       }
     }
 
     private int getPort() {
       if (collectorPort > 0) {
         return collectorPort;
-      } else if (collectorProtocol.equals(PROTOCOL_HTTPS)) {
-        return DEFAULT_SECURE_PORT;
+      } else if (collectorProtocol.equals(LightstepConfig.PROTOCOL_HTTPS)) {
+        return LightstepConfig.DEFAULT_SECURE_PORT;
       } else {
-        return DEFAULT_PLAINTEXT_PORT;
+        return LightstepConfig.DEFAULT_PLAINTEXT_PORT;
       }
     }
 

@@ -50,6 +50,24 @@ Supported system properties and environmental variables:
 * `LIGHTSTEP_COMPONENT_NAME` - name of the component being traced, default is Java runtime command
 * `LIGHTSTEP_ACCESS_TOKEN` - token for Lightstep access
 
+### Configuration from properties file
+
+Lightstep exporter can be configured by properties from configuration file:
+
+```java
+String configFilePath = ...
+Builder builder = LightstepSpanExporter.Builder.fromConfigFile(configFilePath);
+```
+
+Supported configuration file properties:
+
+* `lightstep.collector.protocol`
+* `lightstep.collector.host`
+* `lightstep.collector.port`
+* `lightstep.deadline.millis`
+* `lightstep.component.name`
+* `lightstep.access.token`
+
 ### Easy initialization
 
 ```java
