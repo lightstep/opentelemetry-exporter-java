@@ -3,10 +3,11 @@
 ## Configuration
 
 Update config.properties with correct values for 
-- _access_token_
-- _collector_host_
-- _ccollector_port_
-- _collector_protocol_.
+- _lightstep.access.token_
+- _lightstep.collector.host_
+- _lightstep.collector.port_
+- _lightstep.collector.protocol_
+- _lightstep.component.name_
 
 ## Build
 ```shell script

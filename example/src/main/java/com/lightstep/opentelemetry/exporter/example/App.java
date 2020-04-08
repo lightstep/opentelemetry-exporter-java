@@ -19,11 +19,11 @@ public class App {
         OpenTelemetry.getTracerProvider().get("LightstepExample");
 
     LightstepSpanExporter lightStepSpanExporter = LightstepSpanExporter.newBuilder()
-        .setAccessToken(properties.getProperty("access_token"))
-        .setCollectorHost(properties.getProperty("collector_host"))
-        .setCollectorPort(Integer.parseInt(properties.getProperty("collector_port")))
-        .setCollectorProtocol(properties.getProperty("collector_protocol"))
-        .setComponentName(properties.getProperty("component_name"))
+        .setAccessToken(properties.getProperty("lightstep.access.token"))
+        .setCollectorHost(properties.getProperty("lightstep.collector.host"))
+        .setCollectorPort(Integer.parseInt(properties.getProperty("lightstep.collector.port")))
+        .setCollectorProtocol(properties.getProperty("lightstep.collector.protocol"))
+        .setComponentName(properties.getProperty("lightstep.component.name"))
         .build();
 
     OpenTelemetrySdk.getTracerProvider()

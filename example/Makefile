@@ -1,6 +1,5 @@
 
 build:
-	cd .. && mvn clean install
 	mvn clean package
 
 
