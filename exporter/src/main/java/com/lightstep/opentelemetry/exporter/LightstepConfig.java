@@ -30,7 +30,13 @@ public class LightstepConfig {
    */
   public static final long DEFAULT_DEADLINE_MILLIS = 30000;
 
+  /**
+   * Use {@link #SERVICE_NAME} instead
+   */
+  @Deprecated
   public static final String COMPONENT_NAME = "LIGHTSTEP_COMPONENT_NAME";
+
+  public static final String SERVICE_NAME = "LIGHTSTEP_SERVICE_NAME";
   public static final String DEADLINE_MILLIS = "LIGHTSTEP_DEADLINE_MILLIS";
   public static final String COLLECTOR_PROTOCOL = "LIGHTSTEP_COLLECTOR_PROTOCOL";
   public static final String COLLECTOR_HOST = "LIGHTSTEP_COLLECTOR_HOST";
@@ -38,7 +44,13 @@ public class LightstepConfig {
   public static final String ACCESS_TOKEN = "LIGHTSTEP_ACCESS_TOKEN";
   public static final String CONFIG_FILE = "LIGHTSTEP_CONFIG_FILE";
 
+  /**
+   * Use {@link #SERVICE_NAME_PROPERTY_KEY} instead
+   */
+  @Deprecated
   public static final String COMPONENT_NAME_PROPERTY_KEY = "lightstep.component.name";
+
+  public static final String SERVICE_NAME_PROPERTY_KEY = "lightstep.service.name";
   public static final String DEADLINE_MILLIS_PROPERTY_KEY = "lightstep.deadline.millis";
   public static final String COLLECTOR_PROTOCOL_PROPERTY_KEY = "lightstep.collector.protocol";
   public static final String COLLECTOR_HOST_PROPERTY_KEY = "lightstep.collector.host";
@@ -46,15 +58,15 @@ public class LightstepConfig {
   public static final String ACCESS_TOKEN_PROPERTY_KEY = "lightstep.access.token";
 
   /**
-   * Java System property that will be used as the component name when no other value is provided.
+   * Java System property that will be used as the service name when no other value is provided.
    */
-  private static final String COMPONENT_NAME_SYSTEM_PROPERTY_KEY = "sun.java.command";
+  private static final String SERVICE_NAME_SYSTEM_PROPERTY_KEY = "sun.java.command";
 
 
-  public static String defaultComponentName() {
-    String componentNameSystemProperty = System.getProperty(COMPONENT_NAME_SYSTEM_PROPERTY_KEY);
-    if (componentNameSystemProperty != null) {
-      StringTokenizer st = new StringTokenizer(componentNameSystemProperty);
+  public static String defaultServiceName() {
+    String serviceNameSystemProperty = System.getProperty(SERVICE_NAME_SYSTEM_PROPERTY_KEY);
+    if (serviceNameSystemProperty != null) {
+      StringTokenizer st = new StringTokenizer(serviceNameSystemProperty);
       if (st.hasMoreTokens()) {
         return st.nextToken();
       }
