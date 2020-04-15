@@ -33,9 +33,10 @@ public class LightstepSpanExporterFactory implements SpanExporterFactory {
           .setDeadlineMillis(getProperty(properties, LightstepConfig.DEADLINE_MILLIS_PROPERTY_KEY,
               config.getLong(LightstepConfig.DEADLINE_MILLIS_PROPERTY_KEY,
                   LightstepConfig.DEFAULT_DEADLINE_MILLIS)))
-          .setComponentName(getProperty(properties, LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
-              config.getString(LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
-                  LightstepConfig.defaultComponentName())))
+          .setServiceName(getProperty(properties, LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
+              config.getString(LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
+                  config.getString(LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
+                      LightstepConfig.defaultServiceName()))))
           .build();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);

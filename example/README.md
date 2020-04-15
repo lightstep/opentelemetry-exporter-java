@@ -7,7 +7,7 @@ Update config.properties with correct values for
 - _lightstep.collector.host_
 - _lightstep.collector.port_
 - _lightstep.collector.protocol_
-- _lightstep.component.name_
+- _lightstep.service.name_
 
 ## Build
 ```shell script

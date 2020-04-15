@@ -44,7 +44,10 @@ public class LightstepSpanExporter implements SpanExporter {
   private static final MediaType MEDIA_TYPE = MediaType.parse(MEDIA_TYPE_STRING);
 
   private static final String GUID_KEY = "lightstep.guid";
+
+  // TODO: shouldn't be replaced by lightstep.service_name?
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
+
   private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
   private static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
       "lightstep.tracer_platform_version";
@@ -72,7 +75,7 @@ public class LightstepSpanExporter implements SpanExporter {
   private final URL collectorUrl;
   private final OkHttpClient client;
   private final Auth.Builder auth;
-  private final String componentName;
+  private final String serviceName;
 
   /**
    * Creates a new Lightstep OkHttp Span Reporter.
@@ -82,7 +85,7 @@ public class LightstepSpanExporter implements SpanExporter {
    * collector when sending a report.
    * @param accessToken Your specific token for Lightstep access.
    * @param okHttpDns DNS service used to lookup IP addresses for hostnames
-   * @param componentName The component name attribute. If not set, will default to the Java runtime
+   * @param serviceName The service name attribute. If not set, will default to the Java runtime
    * command.
    */
   private LightstepSpanExporter(
@@ -90,9 +93,9 @@ public class LightstepSpanExporter implements SpanExporter {
       long deadlineMillis,
       String accessToken,
       OkHttpDns okHttpDns,
-      String componentName) {
+      String serviceName) {
     this.collectorUrl = collectorUrl;
-    this.componentName = componentName;
+    this.serviceName = serviceName;
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder().connectTimeout(deadlineMillis, TimeUnit.MILLISECONDS);
 
@@ -136,7 +139,7 @@ public class LightstepSpanExporter implements SpanExporter {
                     .setReporterId(guid)
                     .addTags(
                         KeyValue.newBuilder()
-                            .setStringValue(componentName)
+                            .setStringValue(serviceName)
                             .setKey(COMPONENT_NAME_KEY)
                             .build())
                     .addTags(KeyValue.newBuilder().setKey(GUID_KEY).setIntValue(guid).build())
@@ -226,7 +229,7 @@ public class LightstepSpanExporter implements SpanExporter {
     private long deadlineMillis = LightstepConfig.DEFAULT_DEADLINE_MILLIS;
     private String accessToken = "";
     private OkHttpDns okHttpDns;
-    private String componentName;
+    private String serviceName;
 
     /**
      * Creates builder from configuration file
@@ -250,9 +253,9 @@ public class LightstepSpanExporter implements SpanExporter {
       builder.deadlineMillis = Long.parseLong(properties
           .getProperty(LightstepConfig.DEADLINE_MILLIS_PROPERTY_KEY,
               String.valueOf(LightstepConfig.DEFAULT_DEADLINE_MILLIS)));
-      builder.componentName = properties
-          .getProperty(LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
-              LightstepConfig.defaultComponentName());
+      builder.serviceName = properties
+          .getProperty(LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
+              LightstepConfig.defaultServiceName());
 
       return builder;
     }
@@ -274,9 +277,12 @@ public class LightstepSpanExporter implements SpanExporter {
       builder.deadlineMillis = Long.parseLong(
           getProperty(LightstepConfig.DEADLINE_MILLIS,
               String.valueOf(LightstepConfig.DEFAULT_DEADLINE_MILLIS)));
-      builder.componentName = getProperty(LightstepConfig.COMPONENT_NAME,
-          LightstepConfig.defaultComponentName());
       builder.accessToken = getProperty(LightstepConfig.ACCESS_TOKEN, "");
+      builder.serviceName = getProperty(LightstepConfig.SERVICE_NAME,
+          LightstepConfig.defaultServiceName());
+
+      // Deprecated LightstepConfig.COMPONENT_NAME should be removed in next releases
+      builder.serviceName = getProperty(LightstepConfig.COMPONENT_NAME, builder.serviceName);
 
       return builder;
     }
@@ -370,22 +376,36 @@ public class LightstepSpanExporter implements SpanExporter {
     }
 
     /**
-     * Sets the component name attribute. If not set, will default to the Java runtime command.
+     * Sets the service name attribute. If not set, will default to the Java runtime command.
+     * <p>
+     * Deprecated, use {@link #setServiceName(String)} instead.
      *
-     * @param name The name of the component being traced.
+     * @param name The name of the service being traced.
      * @return this builder's instance
      */
+    @Deprecated
     public Builder setComponentName(String name) {
-      this.componentName = name;
+      this.serviceName = name;
       return this;
     }
 
     /**
-     * If not set, provides a default value for the component name.
+     * Sets the service name attribute. If not set, will default to the Java runtime command.
+     *
+     * @param name The name of the service being traced.
+     * @return this builder's instance
      */
-    private void setDefaultComponentName() {
-      if (componentName == null) {
-        setComponentName(LightstepConfig.defaultComponentName());
+    public Builder setServiceName(String name) {
+      this.serviceName = name;
+      return this;
+    }
+
+    /**
+     * If not set, provides a default value for the service name.
+     */
+    private void setDefaultServiceName() {
+      if (serviceName == null) {
+        setServiceName(LightstepConfig.defaultServiceName());
       }
     }
 
@@ -418,9 +438,9 @@ public class LightstepSpanExporter implements SpanExporter {
      */
     public LightstepSpanExporter build() throws MalformedURLException {
       defaultDeadlineMillis();
-      setDefaultComponentName();
+      setDefaultServiceName();
       return new LightstepSpanExporter(
-          getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, componentName);
+          getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, serviceName);
     }
 
     /**
