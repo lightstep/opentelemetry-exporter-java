@@ -23,7 +23,7 @@ public class App {
         .setCollectorHost(properties.getProperty("lightstep.collector.host"))
         .setCollectorPort(Integer.parseInt(properties.getProperty("lightstep.collector.port")))
         .setCollectorProtocol(properties.getProperty("lightstep.collector.protocol"))
-        .setCollectorHost(properties.getProperty("lightstep.service.name"))
+        .setComponentName(properties.getProperty("lightstep.service.name"))
         .build();
 
     OpenTelemetrySdk.getTracerProvider()
