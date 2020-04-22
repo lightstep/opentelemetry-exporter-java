@@ -16,6 +16,8 @@ NEW_VERSION="${CURRENT_VERSION%.*}.$((${CURRENT_VERSION##*.} + 1))"
 mvn versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
 
 # Add and commit the changes
+git add exporter/pom.xml
+git add auto-exporter/pom.xml
 git add pom.xml
 
 git commit -m "VERSION $NEW_VERSION"
