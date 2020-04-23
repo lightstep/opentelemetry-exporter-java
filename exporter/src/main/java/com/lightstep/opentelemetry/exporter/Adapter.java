@@ -12,6 +12,7 @@ import com.lightstep.tracer.grpc.Reference.Relationship;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
 import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
@@ -77,6 +78,7 @@ final class Adapter {
     builder.setDurationMicros(Durations.toMicros(Timestamps.between(startTimestamp, endTimestamp)));
 
     builder.addAllTags(toKeyValues(spanData.getAttributes()));
+    builder.addAllTags(toKeyValues(spanData.getResource().getAttributes()));
 
     builder.addAllLogs(toLightstepLogs(spanData.getTimedEvents()));
 
