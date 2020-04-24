@@ -84,13 +84,13 @@ public class LightstepSpanExporterTest {
     assertEquals("token", reportRequest.getAuth().getAccessToken());
 
     final Reporter reporter = reportRequest.getReporter();
-    assertEquals(4, reporter.getTagsCount());
+    assertEquals(6, reporter.getTagsCount());
 
     assertEquals(1, reportRequest.getSpansCount());
     final Span span = reportRequest.getSpans(0);
     assertEquals("GET /api/endpoint", span.getOperationName());
     assertEquals(900000L, span.getDurationMicros());
-    assertEquals(2, span.getTagsCount());
+    assertEquals(4, span.getTagsCount());
 
     final SpanContext spanContext = span.getSpanContext();
     assertEquals(1302406798037686297L, spanContext.getSpanId());

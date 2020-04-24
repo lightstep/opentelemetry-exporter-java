@@ -13,6 +13,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -47,7 +48,9 @@ public class LightstepSpanExporter implements SpanExporter {
 
   // TODO: shouldn't be replaced by lightstep.service_name?
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
+  private static final String SERVICE_VERSION_KEY = "service.version";
 
+  private static final String LIGHTSTEP_HOSTNAME_KEY = "lightstep.hostname";
   private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
   private static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
       "lightstep.tracer_platform_version";
@@ -76,6 +79,8 @@ public class LightstepSpanExporter implements SpanExporter {
   private final OkHttpClient client;
   private final Auth.Builder auth;
   private final String serviceName;
+  private final String serviceVersion;
+  private final List<KeyValue> lsSpanAttributes;
 
   /**
    * Creates a new Lightstep OkHttp Span Reporter.
@@ -93,9 +98,11 @@ public class LightstepSpanExporter implements SpanExporter {
       long deadlineMillis,
       String accessToken,
       OkHttpDns okHttpDns,
-      String serviceName) {
+      String serviceName,
+      String serviceVersion) {
     this.collectorUrl = collectorUrl;
     this.serviceName = serviceName;
+    this.serviceVersion = serviceVersion;
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder().connectTimeout(deadlineMillis, TimeUnit.MILLISECONDS);
 
@@ -105,6 +112,11 @@ public class LightstepSpanExporter implements SpanExporter {
 
     this.client = builder.build();
     this.auth = Auth.newBuilder().setAccessToken(accessToken);
+
+    this.lsSpanAttributes = Arrays.asList(new KeyValue[] {
+      KeyValue.newBuilder().setKey(SERVICE_VERSION_KEY).setStringValue(serviceVersion).build(),
+      KeyValue.newBuilder().setKey(LIGHTSTEP_HOSTNAME_KEY).setStringValue(LightstepConfig.LOCAL_HOSTNAME).build()
+    });
   }
 
   private static long generateRandomGuid() {
@@ -142,7 +154,17 @@ public class LightstepSpanExporter implements SpanExporter {
                             .setStringValue(serviceName)
                             .setKey(COMPONENT_NAME_KEY)
                             .build())
+                    .addTags(
+                        KeyValue.newBuilder()
+                            .setStringValue(serviceVersion)
+                            .setKey(SERVICE_VERSION_KEY)
+                            .build())
                     .addTags(KeyValue.newBuilder().setKey(GUID_KEY).setIntValue(guid).build())
+                    .addTags(
+                        KeyValue.newBuilder()
+                            .setKey(LIGHTSTEP_HOSTNAME_KEY)
+                            .setStringValue(LightstepConfig.LOCAL_HOSTNAME)
+                            .build())
                     .addTags(
                         KeyValue.newBuilder()
                             .setKey(LIGHTSTEP_TRACER_PLATFORM_KEY)
@@ -154,7 +176,7 @@ public class LightstepSpanExporter implements SpanExporter {
                             .setStringValue(System.getProperty("java.version"))
                             .build())
                     .build())
-            .addAllSpans(Adapter.toLightstepSpans(spans))
+            .addAllSpans(Adapter.toLightstepSpans(spans, lsSpanAttributes))
             .build();
 
     try (Response response = client.newCall(toRequest(request)).execute()) {
@@ -230,6 +252,7 @@ public class LightstepSpanExporter implements SpanExporter {
     private String accessToken = "";
     private OkHttpDns okHttpDns;
     private String serviceName;
+    private String serviceVersion = "";
 
     /**
      * Creates builder from configuration file
@@ -256,6 +279,8 @@ public class LightstepSpanExporter implements SpanExporter {
       builder.serviceName = properties
           .getProperty(LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
               LightstepConfig.defaultServiceName());
+      builder.serviceVersion = properties
+          .getProperty(LightstepConfig.SERVICE_VERSION_PROPERTY_KEY, "");
 
       return builder;
     }
@@ -280,6 +305,7 @@ public class LightstepSpanExporter implements SpanExporter {
       builder.accessToken = getProperty(LightstepConfig.ACCESS_TOKEN, "");
       builder.serviceName = getProperty(LightstepConfig.SERVICE_NAME,
           LightstepConfig.defaultServiceName());
+      builder.serviceVersion = getProperty(LightstepConfig.SERVICE_VERSION, "");
 
       // Deprecated LightstepConfig.COMPONENT_NAME should be removed in next releases
       builder.serviceName = getProperty(LightstepConfig.COMPONENT_NAME, builder.serviceName);
@@ -401,6 +427,17 @@ public class LightstepSpanExporter implements SpanExporter {
     }
 
     /**
+     * Sets the service version attribute. Optional value.
+     *
+     * @param version The version of the service being traced.
+     * @return this builder's instance
+     */
+    public Builder setServiceVersion(String version) {
+      this.serviceVersion = version;
+      return this;
+    }
+
+    /**
      * If not set, provides a default value for the service name.
      */
     private void setDefaultServiceName() {
@@ -440,7 +477,7 @@ public class LightstepSpanExporter implements SpanExporter {
       defaultDeadlineMillis();
       setDefaultServiceName();
       return new LightstepSpanExporter(
-          getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, serviceName);
+          getCollectorUrl(), deadlineMillis, accessToken, okHttpDns, serviceName, serviceVersion);
     }
 
     /**

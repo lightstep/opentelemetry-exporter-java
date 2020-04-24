@@ -21,6 +21,7 @@ import io.opentelemetry.trace.TraceId;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,9 +48,21 @@ final class Adapter {
    * @see #toLightstepSpan(SpanData)
    */
   static List<Span> toLightstepSpans(Collection<SpanData> spans) {
+    return toLightstepSpans(spans, Collections.<KeyValue>emptyList());
+  }
+
+  /**
+   * Converts a list of {@link SpanData} into a collection of Lightstep's {@link Span}.
+   *
+   * @param spans the list of spans to be converted
+   * @param lsSpanAttributes the list of LS-specific Span attributes to add.
+   * @return the collection of Lightstep spans
+   * @see #toLightstepSpan(SpanData)
+   */
+  static List<Span> toLightstepSpans(Collection<SpanData> spans, Collection<KeyValue> lsSpanAttributes) {
     List<Span> converted = new ArrayList<>();
     for (SpanData span : spans) {
-      converted.add(toLightstepSpan(span));
+      converted.add(toLightstepSpan(span, lsSpanAttributes));
     }
     return converted;
   }
@@ -61,6 +74,17 @@ final class Adapter {
    * @return the Lightstep span
    */
   static Span toLightstepSpan(SpanData spanData) {
+    return toLightstepSpan(spanData, Collections.<KeyValue>emptyList());
+  }
+
+  /**
+   * Converts a single {@link SpanData} into a Lightstep's {@link Span}.
+   *
+   * @param spanData the spanData to be converted
+   * @param lsSpanAttributes the list of LS-specific Span attributes to add.
+   * @return the Lightstep span
+   */
+  static Span toLightstepSpan(SpanData spanData, Collection<KeyValue> lsSpanAttributes) {
     final Span.Builder builder = Span.newBuilder();
     builder.setOperationName(spanData.getName());
 
@@ -79,6 +103,7 @@ final class Adapter {
 
     builder.addAllTags(toKeyValues(spanData.getAttributes()));
     builder.addAllTags(toKeyValues(spanData.getResource().getAttributes()));
+    builder.addAllTags(lsSpanAttributes);
 
     builder.addAllLogs(toLightstepLogs(spanData.getTimedEvents()));
 
