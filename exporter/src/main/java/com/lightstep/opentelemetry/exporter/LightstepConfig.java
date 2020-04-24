@@ -2,6 +2,7 @@ package com.lightstep.opentelemetry.exporter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -11,6 +12,8 @@ public class LightstepConfig {
   private static final Logger logger = Logger.getLogger(LightstepConfig.class.getName());
 
   public static final String DEFAULT_HOST = "collector-grpc.lightstep.com";
+
+  public static final String LOCAL_HOSTNAME = getHostName();
 
   /**
    * Default collector port for HTTP.
@@ -37,6 +40,7 @@ public class LightstepConfig {
   public static final String COMPONENT_NAME = "LIGHTSTEP_COMPONENT_NAME";
 
   public static final String SERVICE_NAME = "LIGHTSTEP_SERVICE_NAME";
+  public static final String SERVICE_VERSION = "LIGHTSTEP_SERVICE_VERSION";
   public static final String DEADLINE_MILLIS = "LIGHTSTEP_DEADLINE_MILLIS";
   public static final String COLLECTOR_PROTOCOL = "LIGHTSTEP_COLLECTOR_PROTOCOL";
   public static final String COLLECTOR_HOST = "LIGHTSTEP_COLLECTOR_HOST";
@@ -51,6 +55,7 @@ public class LightstepConfig {
   public static final String COMPONENT_NAME_PROPERTY_KEY = "lightstep.component.name";
 
   public static final String SERVICE_NAME_PROPERTY_KEY = "lightstep.service.name";
+  public static final String SERVICE_VERSION_PROPERTY_KEY = "lightstep.service.version";
   public static final String DEADLINE_MILLIS_PROPERTY_KEY = "lightstep.deadline.millis";
   public static final String COLLECTOR_PROTOCOL_PROPERTY_KEY = "lightstep.collector.protocol";
   public static final String COLLECTOR_HOST_PROPERTY_KEY = "lightstep.collector.host";
@@ -61,7 +66,6 @@ public class LightstepConfig {
    * Java System property that will be used as the service name when no other value is provided.
    */
   private static final String SERVICE_NAME_SYSTEM_PROPERTY_KEY = "sun.java.command";
-
 
   public static String defaultServiceName() {
     String serviceNameSystemProperty = System.getProperty(SERVICE_NAME_SYSTEM_PROPERTY_KEY);
@@ -85,6 +89,15 @@ public class LightstepConfig {
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Failed to load properties from file " + file, e);
       return null;
+    }
+  }
+
+  private static String getHostName() {
+    try {
+      return InetAddress.getLocalHost().getHostName();
+    }
+    catch (final IOException e) {
+      return "";
     }
   }
 }
