@@ -12,7 +12,6 @@ import com.lightstep.tracer.grpc.Reference.Relationship;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
 import io.opentelemetry.common.AttributeValue;
-import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
@@ -21,7 +20,6 @@ import io.opentelemetry.trace.TraceId;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,37 +42,17 @@ final class Adapter {
    * Converts a list of {@link SpanData} into a collection of Lightstep's {@link Span}.
    *
    * @param spans the list of spans to be converted
-   * @return the collection of Lightstep spans
-   * @see #toLightstepSpan(SpanData)
-   */
-  static List<Span> toLightstepSpans(Collection<SpanData> spans) {
-    return toLightstepSpans(spans, Collections.<KeyValue>emptyList());
-  }
-
-  /**
-   * Converts a list of {@link SpanData} into a collection of Lightstep's {@link Span}.
-   *
-   * @param spans the list of spans to be converted
    * @param lsSpanAttributes the list of LS-specific Span attributes to add.
    * @return the collection of Lightstep spans
-   * @see #toLightstepSpan(SpanData)
+   * @see #toLightstepSpan(SpanData, Collection<KeyValue>)
    */
-  static List<Span> toLightstepSpans(Collection<SpanData> spans, Collection<KeyValue> lsSpanAttributes) {
+  static List<Span> toLightstepSpans(Collection<SpanData> spans,
+      Collection<KeyValue> lsSpanAttributes) {
     List<Span> converted = new ArrayList<>();
     for (SpanData span : spans) {
       converted.add(toLightstepSpan(span, lsSpanAttributes));
     }
     return converted;
-  }
-
-  /**
-   * Converts a single {@link SpanData} into a Lightstep's {@link Span}.
-   *
-   * @param spanData the spanData to be converted
-   * @return the Lightstep span
-   */
-  static Span toLightstepSpan(SpanData spanData) {
-    return toLightstepSpan(spanData, Collections.<KeyValue>emptyList());
   }
 
   /**
@@ -103,7 +81,10 @@ final class Adapter {
 
     builder.addAllTags(toKeyValues(spanData.getAttributes()));
     builder.addAllTags(toKeyValues(spanData.getResource().getAttributes()));
-    builder.addAllTags(lsSpanAttributes);
+
+    if (lsSpanAttributes != null && !lsSpanAttributes.isEmpty()) {
+      builder.addAllTags(lsSpanAttributes);
+    }
 
     builder.addAllLogs(toLightstepLogs(spanData.getTimedEvents()));
 

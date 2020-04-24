@@ -23,6 +23,7 @@ import io.opentelemetry.trace.Status;
 import io.opentelemetry.trace.TraceFlags;
 import io.opentelemetry.trace.TraceId;
 import io.opentelemetry.trace.TraceState;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -122,7 +123,8 @@ public class AdapterTest {
     SpanData span = getSpanData(startMs, endMs);
     List<SpanData> spans = Collections.singletonList(span);
 
-    final List<com.lightstep.tracer.grpc.Span> lightStepSpans = Adapter.toLightstepSpans(spans);
+    final List<com.lightstep.tracer.grpc.Span> lightStepSpans = Adapter
+        .toLightstepSpans(spans, new ArrayList<KeyValue>());
 
     // the span contents are checked somewhere else
     assertEquals(1, lightStepSpans.size());
@@ -135,7 +137,8 @@ public class AdapterTest {
     long endMs = startMs + duration;
 
     final SpanData span = getSpanData(startMs, endMs);
-    final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter.toLightstepSpan(span);
+    final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter.toLightstepSpan(span,
+        new ArrayList<KeyValue>());
 
     assertEquals(4126161779880129985L, lightstepSpan.getSpanContext().getTraceId());
     assertEquals(14611542, lightstepSpan.getSpanContext().getSpanId());
@@ -283,7 +286,7 @@ public class AdapterTest {
             .setTotalRecordedLinks(0)
             .build();
 
-    assertNotNull(Adapter.toLightstepSpan(span));
+    assertNotNull(Adapter.toLightstepSpan(span, new ArrayList<KeyValue>()));
   }
 
   @Test

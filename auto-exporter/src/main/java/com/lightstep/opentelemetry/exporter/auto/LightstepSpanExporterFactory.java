@@ -37,6 +37,9 @@ public class LightstepSpanExporterFactory implements SpanExporterFactory {
               config.getString(LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
                   config.getString(LightstepConfig.COMPONENT_NAME_PROPERTY_KEY,
                       LightstepConfig.defaultServiceName()))))
+          .setServiceVersion(getProperty(properties,
+              LightstepConfig.SERVICE_VERSION_PROPERTY_KEY,
+              config.getString(LightstepConfig.SERVICE_VERSION_PROPERTY_KEY, null)))
           .build();
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
