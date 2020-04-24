@@ -81,6 +81,7 @@ public class LightstepSpanExporter implements SpanExporter {
   private final String serviceName;
   private final String serviceVersion;
   private final List<KeyValue> lsSpanAttributes;
+  private final Reporter reporter;
 
   /**
    * Creates a new Lightstep OkHttp Span Reporter.
@@ -121,31 +122,13 @@ public class LightstepSpanExporter implements SpanExporter {
           KeyValue.newBuilder().setKey(SERVICE_VERSION_KEY).setStringValue(serviceVersion).build());
     }
 
+    // should be last step in constructor
+    this.reporter = createReporter();
   }
 
-  private static long generateRandomGuid() {
+  private Reporter createReporter() {
     // Note that ThreadLocalRandom is a singleton, thread safe Random Generator
-    return random.get().nextLong();
-  }
-
-  /**
-   * Creates a new builder instance.
-   *
-   * @return a new instance builder for this exporter
-   */
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * Submits all the given spans in a single batch to the Lightstep collector.
-   *
-   * @param spans the list of sampled Spans to be exported.
-   * @return the result of the operation
-   */
-  @Override
-  public ResultCode export(Collection<SpanData> spans) {
-    final long guid = generateRandomGuid();
+    final long guid = random.get().nextLong();
 
     final Reporter.Builder reporterBuilder = Reporter.newBuilder()
         .setReporterId(guid)
@@ -179,10 +162,30 @@ public class LightstepSpanExporter implements SpanExporter {
               .build());
     }
 
+    return reporterBuilder.build();
+  }
+
+  /**
+   * Creates a new builder instance.
+   *
+   * @return a new instance builder for this exporter
+   */
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  /**
+   * Submits all the given spans in a single batch to the Lightstep collector.
+   *
+   * @param spans the list of sampled Spans to be exported.
+   * @return the result of the operation
+   */
+  @Override
+  public ResultCode export(Collection<SpanData> spans) {
     ReportRequest request =
         ReportRequest.newBuilder()
             .setAuth(auth)
-            .setReporter(reporterBuilder.build())
+            .setReporter(reporter)
             .addAllSpans(Adapter.toLightstepSpans(spans, lsSpanAttributes))
             .build();
 
