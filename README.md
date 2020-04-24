@@ -23,7 +23,8 @@ Builder builder = LightstepSpanExporter.newBuilder()
                       .setCollectorHost("{lightstep_host}")
                       .setCollectorPort("{lightstep_port}")
                       .setCollectorProtocol("{lightstep_protocol}")
-                      .setServiceName("{lightstep_service}");
+                      .setServiceName("{lightstep_service}")
+                      .setServiceVersion("{lightstep_version}");
 
 // Instantiate the exporter
 LightstepSpanExporter exporter = builder.build();
@@ -48,6 +49,7 @@ Supported system properties and environmental variables:
 * `LIGHTSTEP_COLLECTOR_PORT` -  port to which the tracer will send data, default is `443`
 * `LIGHTSTEP_DEADLINE_MILLIS` - maximum amount of time the tracer should wait for a response from the collector when sending a report, default is 30000
 * `LIGHTSTEP_SERVICE_NAME` - name of the service being traced, default is Java runtime command
+* `LIGHTSTEP_SERVICE_VERSION` - version of the service being traced
 * `LIGHTSTEP_ACCESS_TOKEN` - token for Lightstep access
 
 ### Configuration from properties file
@@ -66,6 +68,7 @@ Supported configuration file properties:
 * `lightstep.collector.port`
 * `lightstep.deadline.millis`
 * `lightstep.service.name`
+* `lightstep.service.version`
 * `lightstep.access.token`
 
 ### Easy initialization

@@ -25,6 +25,7 @@ java -javaagent:path/to/opentelemetry-auto-<version>.jar \
 | ota.exporter.jar                          | OTA_EXPORTER_JAR             |                              | Path to the exporter fat-jar that you want to use |
 | ota.exporter.lightstep.config.file        | LIGHTSTEP_CONFIG_FILE        |                              | Path to property file to load configuration parameters. Properties defined in the config file override same-named properties defined in system properties and environment variables. |
 | ota.exporter.lightstep.service.name       | LIGHTSTEP_SERVICE_NAME       | lightstep.service.name       | Name of the service being traced, default is Java runtime command |
+| ota.exporter.lightstep.service.version    | LIGHTSTEP_SERVICE_VERSION    | lightstep.service.version    | Version of the service being traced |
 | ota.exporter.lightstep.collector.protocol | LIGHTSTEP_COLLECTOR_PROTOCOL | lightstep.collector.protocol | Protocol which will be used when sending data to the tracer, `http` or `https`, default is `https` |
 | ota.exporter.lightstep.collector.host     | LIGHTSTEP_COLLECTOR_HOST     | lightstep.collector.host     | Host to which the tracer will send data, default is `collector-grpc.lightstep.com` |
 | ota.exporter.lightstep.collector.port     | LIGHTSTEP_COLLECTOR_PORT     | lightstep.collector.port     | Port to which the tracer will send data, default is `443` |
