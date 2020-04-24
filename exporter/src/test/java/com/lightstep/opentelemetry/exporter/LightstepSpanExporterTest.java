@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -88,6 +89,10 @@ public class LightstepSpanExporterTest {
     // Verify that "service.version" tag is set to correct value
     assertTrue(tagEquals(reporter.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY, "1.0"));
 
+    // Verify "lightstep.hostname" is set
+    assertNotNull(
+        getTagValue(reporter.getTagsList(), LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY));
+
     assertEquals(1, reportRequest.getSpansCount());
     final Span span = reportRequest.getSpans(0);
     assertEquals("GET /api/endpoint", span.getOperationName());
@@ -96,6 +101,10 @@ public class LightstepSpanExporterTest {
 
     // Verify that "service.version" tag is set to correct value
     assertTrue(tagEquals(span.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY, "1.0"));
+
+    // Verify "lightstep.hostname" is set
+    assertNotNull(
+        getTagValue(span.getTagsList(), LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY));
 
     final SpanContext spanContext = span.getSpanContext();
     assertEquals(1302406798037686297L, spanContext.getSpanId());
@@ -168,6 +177,10 @@ public class LightstepSpanExporterTest {
       assertFalse(tagExist(reporter.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY));
     }
 
+    // Verify "lightstep.hostname" is set
+    assertNotNull(
+        getTagValue(reporter.getTagsList(), LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY));
+
     assertEquals(1, reportRequest.getSpansCount());
     final Span span = reportRequest.getSpans(0);
     if (serviceVersion != null && !serviceVersion.isEmpty()) {
@@ -180,6 +193,10 @@ public class LightstepSpanExporterTest {
       // Verify that "service.version" tag is missing
       assertFalse(tagExist(span.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY));
     }
+
+    // Verify "lightstep.hostname" is set
+    assertNotNull(
+        getTagValue(span.getTagsList(), LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY));
 
   }
 
@@ -215,5 +232,14 @@ public class LightstepSpanExporterTest {
       }
     }
     return false;
+  }
+
+  private String getTagValue(List<KeyValue> tags, String key) {
+    for (KeyValue tag : tags) {
+      if (tag.getKey().equals(key)) {
+        return tag.getStringValue();
+      }
+    }
+    return null;
   }
 }
