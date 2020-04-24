@@ -259,7 +259,7 @@ public class LightstepSpanExporter implements SpanExporter {
     private String accessToken = "";
     private OkHttpDns okHttpDns;
     private String serviceName;
-    private String serviceVersion = "";
+    private String serviceVersion;
 
     /**
      * Creates builder from configuration file
@@ -287,7 +287,7 @@ public class LightstepSpanExporter implements SpanExporter {
           .getProperty(LightstepConfig.SERVICE_NAME_PROPERTY_KEY,
               LightstepConfig.defaultServiceName());
       builder.serviceVersion = properties
-          .getProperty(LightstepConfig.SERVICE_VERSION_PROPERTY_KEY, "");
+          .getProperty(LightstepConfig.SERVICE_VERSION_PROPERTY_KEY);
 
       return builder;
     }
@@ -312,7 +312,7 @@ public class LightstepSpanExporter implements SpanExporter {
       builder.accessToken = getProperty(LightstepConfig.ACCESS_TOKEN, "");
       builder.serviceName = getProperty(LightstepConfig.SERVICE_NAME,
           LightstepConfig.defaultServiceName());
-      builder.serviceVersion = getProperty(LightstepConfig.SERVICE_VERSION, "");
+      builder.serviceVersion = getProperty(LightstepConfig.SERVICE_VERSION, null);
 
       // Deprecated LightstepConfig.COMPONENT_NAME should be removed in next releases
       builder.serviceName = getProperty(LightstepConfig.COMPONENT_NAME, builder.serviceName);
