@@ -13,7 +13,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
@@ -48,7 +48,7 @@ public class LightstepSpanExporter implements SpanExporter {
 
   // TODO: shouldn't be replaced by lightstep.service_name?
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
-  private static final String SERVICE_VERSION_KEY = "service.version";
+  static final String SERVICE_VERSION_KEY = "service.version";
 
   private static final String LIGHTSTEP_HOSTNAME_KEY = "lightstep.hostname";
   private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
@@ -113,10 +113,14 @@ public class LightstepSpanExporter implements SpanExporter {
     this.client = builder.build();
     this.auth = Auth.newBuilder().setAccessToken(accessToken);
 
-    this.lsSpanAttributes = Arrays.asList(new KeyValue[] {
-      KeyValue.newBuilder().setKey(SERVICE_VERSION_KEY).setStringValue(serviceVersion).build(),
-      KeyValue.newBuilder().setKey(LIGHTSTEP_HOSTNAME_KEY).setStringValue(LightstepConfig.LOCAL_HOSTNAME).build()
-    });
+    this.lsSpanAttributes = new ArrayList<>();
+    this.lsSpanAttributes.add(KeyValue.newBuilder().setKey(LIGHTSTEP_HOSTNAME_KEY)
+        .setStringValue(LightstepConfig.LOCAL_HOSTNAME).build());
+    if (serviceVersion != null && !serviceVersion.isEmpty()) {
+      this.lsSpanAttributes.add(
+          KeyValue.newBuilder().setKey(SERVICE_VERSION_KEY).setStringValue(serviceVersion).build());
+    }
+
   }
 
   private static long generateRandomGuid() {
@@ -143,39 +147,42 @@ public class LightstepSpanExporter implements SpanExporter {
   public ResultCode export(Collection<SpanData> spans) {
     final long guid = generateRandomGuid();
 
+    final Reporter.Builder reporterBuilder = Reporter.newBuilder()
+        .setReporterId(guid)
+        .addTags(
+            KeyValue.newBuilder()
+                .setStringValue(serviceName)
+                .setKey(COMPONENT_NAME_KEY)
+                .build())
+        .addTags(KeyValue.newBuilder().setKey(GUID_KEY).setIntValue(guid).build())
+        .addTags(
+            KeyValue.newBuilder()
+                .setKey(LIGHTSTEP_HOSTNAME_KEY)
+                .setStringValue(LightstepConfig.LOCAL_HOSTNAME)
+                .build())
+        .addTags(
+            KeyValue.newBuilder()
+                .setKey(LIGHTSTEP_TRACER_PLATFORM_KEY)
+                .setStringValue("jre")
+                .build())
+        .addTags(
+            KeyValue.newBuilder()
+                .setKey(LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY)
+                .setStringValue(System.getProperty("java.version"))
+                .build());
+
+    if (serviceVersion != null && !serviceVersion.isEmpty()) {
+      reporterBuilder.addTags(
+          KeyValue.newBuilder()
+              .setStringValue(serviceVersion)
+              .setKey(SERVICE_VERSION_KEY)
+              .build());
+    }
+
     ReportRequest request =
         ReportRequest.newBuilder()
             .setAuth(auth)
-            .setReporter(
-                Reporter.newBuilder()
-                    .setReporterId(guid)
-                    .addTags(
-                        KeyValue.newBuilder()
-                            .setStringValue(serviceName)
-                            .setKey(COMPONENT_NAME_KEY)
-                            .build())
-                    .addTags(
-                        KeyValue.newBuilder()
-                            .setStringValue(serviceVersion)
-                            .setKey(SERVICE_VERSION_KEY)
-                            .build())
-                    .addTags(KeyValue.newBuilder().setKey(GUID_KEY).setIntValue(guid).build())
-                    .addTags(
-                        KeyValue.newBuilder()
-                            .setKey(LIGHTSTEP_HOSTNAME_KEY)
-                            .setStringValue(LightstepConfig.LOCAL_HOSTNAME)
-                            .build())
-                    .addTags(
-                        KeyValue.newBuilder()
-                            .setKey(LIGHTSTEP_TRACER_PLATFORM_KEY)
-                            .setStringValue("jre")
-                            .build())
-                    .addTags(
-                        KeyValue.newBuilder()
-                            .setKey(LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY)
-                            .setStringValue(System.getProperty("java.version"))
-                            .build())
-                    .build())
+            .setReporter(reporterBuilder.build())
             .addAllSpans(Adapter.toLightstepSpans(spans, lsSpanAttributes))
             .build();
 
