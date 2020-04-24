@@ -50,7 +50,7 @@ public class LightstepSpanExporter implements SpanExporter {
   private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
   static final String SERVICE_VERSION_KEY = "service.version";
 
-  private static final String LIGHTSTEP_HOSTNAME_KEY = "lightstep.hostname";
+  static final String LIGHTSTEP_HOSTNAME_KEY = "lightstep.hostname";
   private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
   private static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
       "lightstep.tracer_platform_version";
