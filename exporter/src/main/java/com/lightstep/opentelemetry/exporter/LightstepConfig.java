@@ -61,6 +61,7 @@ public class LightstepConfig {
   public static final String COLLECTOR_HOST_PROPERTY_KEY = "lightstep.collector.host";
   public static final String COLLECTOR_PORT_PROPERTY_KEY = "lightstep.collector.port";
   public static final String ACCESS_TOKEN_PROPERTY_KEY = "lightstep.access.token";
+  public static final String CONFIG_FILE_PROPERTY_KEY = "lightstep.config.file";
 
   /**
    * Java System property that will be used as the service name when no other value is provided.
@@ -95,8 +96,7 @@ public class LightstepConfig {
   private static String getHostName() {
     try {
       return InetAddress.getLocalHost().getHostName();
-    }
-    catch (final IOException e) {
+    } catch (final IOException e) {
       return "";
     }
   }
