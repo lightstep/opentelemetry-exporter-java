@@ -1,21 +1,49 @@
 # Lightstep OpenTelemetry Auto Exporter
 
-## Download and run
+## Download
 
-Download the [latest release](https://github.com/lightstep/opentelemetry-exporter-java/releases).
+Download two .jar files, one for OpenTelemetry Java Agent and one for Lightstep Exporter:
 
-The exporter is specified the `-ota.exporter.jar` flag.  
+1. Download [OpenTelemetry Agent latest release](https://github.com/open-telemetry/opentelemetry-auto-instr-java/releases).
+1. Download [Lightstep Exporter latest release](https://github.com/lightstep/opentelemetry-exporter-java/releases).
+
+## Run
+
 Configuration parameters are passed as Java system properties (-D flags) or as environment variables.  
 Parameters also can be loaded from configuration file specified by system property `ota.exporter.lightstep.config.file` or 
 environment variable `LIGHTSTEP_CONFIG_FILE`.
 
-This is an example:
+### Configuration via Java system properties
 
-```sh
+The exporter is specified via the `-ota.exporter.jar` flag.  
+
+```shell script
 export LIGHTSTEP_ACCESS_TOKEN="my-access-token"
 java -javaagent:path/to/opentelemetry-auto-<version>.jar \
      -Dota.exporter.jar=path/to/lightstep-opentelemetry-auto-exporter-<version>.jar \
      -Dota.exporter.lightstep.service.name=MyApp \
+     -jar myapp.jar
+```
+
+### Configuration via environment variables
+
+```shell script
+export OTA_EXPORTER_JAR="/path/to/lightstep-opentelemetry-auto-exporter-<version>.jar"
+export LIGHTSTEP_SERVICE_NAME="MyApp"
+export LIGHTSTEP_ACCESS_TOKEN="my-access-token"
+java -javaagent:/path/to/opentelemetry-auto-<version>.jar \
+     -jar myapp.jar
+```
+
+Environment variables can be prefixed with `OTA_EXPORTER_` by Auto Exporter convention.
+E.g. `OTA_EXPORTER_LIGHTSTEP_SERVICE_NAME`, `OTA_EXPORTER_LIGHTSTEP_ACCESS_TOKEN`, etc.
+
+### Configuration via configuration file
+
+```shell script
+java -javaagent:path/to/opentelemetry-auto-<version>.jar \
+     -Dota.exporter.jar=path/to/lightstep-opentelemetry-auto-exporter-<version>.jar \
+     -Dota.exporter.lightstep.config.file=path/to/configuration-file.properties \
      -jar myapp.jar
 ```
 
