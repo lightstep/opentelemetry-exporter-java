@@ -83,7 +83,7 @@ public class LightstepConfig {
     if (file == null || file.isEmpty()) {
       return null;
     }
-    try (FileInputStream fs = new FileInputStream(file);) {
+    try (FileInputStream fs = new FileInputStream(file)) {
       final Properties config = new Properties();
       config.load(fs);
       return config;

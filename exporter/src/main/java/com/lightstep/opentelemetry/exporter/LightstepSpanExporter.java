@@ -192,13 +192,13 @@ public class LightstepSpanExporter implements SpanExporter {
     try (Response response = client.newCall(toRequest(request)).execute()) {
       if (!response.isSuccessful()) {
         logger.log(Level.WARNING, "Failed to post spans to collector. " + response.toString());
-        return ResultCode.FAILED_NOT_RETRYABLE;
+        return ResultCode.FAILURE;
       }
 
       final ResponseBody body = response.body();
       if (body == null) {
         logger.log(Level.WARNING, "Response body is null");
-        return ResultCode.FAILED_NOT_RETRYABLE;
+        return ResultCode.FAILURE;
       }
 
       final ReportResponse reportResponse = ReportResponse.parseFrom(body.byteStream());
@@ -207,20 +207,20 @@ public class LightstepSpanExporter implements SpanExporter {
         for (String err : errs) {
           logger.log(Level.WARNING, "Collector response contained error: " + err);
         }
-        return ResultCode.FAILED_NOT_RETRYABLE;
+        return ResultCode.FAILURE;
       }
 
       return ResultCode.SUCCESS;
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Failed to post spans", e);
-      return ResultCode.FAILED_NOT_RETRYABLE;
+      return ResultCode.FAILURE;
     }
   }
 
   private Request toRequest(ReportRequest request) {
     return new Request.Builder()
         .url(this.collectorUrl)
-        .post(RequestBody.create(MEDIA_TYPE, request.toByteArray()))
+        .post(RequestBody.create(request.toByteArray(), MEDIA_TYPE))
         .addHeader(LIGHTSTEP_ACCESS_TOKEN, request.getAuth().getAccessToken())
         .build();
   }
@@ -232,6 +232,17 @@ public class LightstepSpanExporter implements SpanExporter {
   @Override
   public void shutdown() {
     client.dispatcher().executorService().shutdown();
+  }
+
+  /**
+   * The Lightstep exporter does not batch spans, so this method will immediately return with
+   * success.
+   *
+   * @return always Success
+   */
+  @Override
+  public ResultCode flush() {
+    return ResultCode.SUCCESS;
   }
 
   public interface OkHttpDns {
@@ -496,7 +507,7 @@ public class LightstepSpanExporter implements SpanExporter {
      * @param tracerSdkProvider tracer SDK provider
      */
     public void install(TracerSdkProvider tracerSdkProvider) throws MalformedURLException {
-      BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
+      BatchSpansProcessor spansProcessor = BatchSpansProcessor.create(this.build());
       tracerSdkProvider.addSpanProcessor(spansProcessor);
     }
 
@@ -504,7 +515,7 @@ public class LightstepSpanExporter implements SpanExporter {
      * Installs exporter into tracer SDK default provider with batching span processor.
      */
     public void install() throws MalformedURLException {
-      BatchSpansProcessor spansProcessor = BatchSpansProcessor.newBuilder(this.build()).build();
+      BatchSpansProcessor spansProcessor = BatchSpansProcessor.create(this.build());
       OpenTelemetrySdk.getTracerProvider().addSpanProcessor(spansProcessor);
     }
 
