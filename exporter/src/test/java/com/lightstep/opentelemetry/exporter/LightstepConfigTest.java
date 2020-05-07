@@ -17,11 +17,11 @@ public class LightstepConfigTest {
     assertEquals("XXXXXXXXXX", properties.get(LightstepConfig.ACCESS_TOKEN_PROPERTY_KEY));
     assertEquals("localhost",
         properties.get(LightstepConfig.COLLECTOR_HOST_PROPERTY_KEY));
-
     assertEquals("8360", properties.get(LightstepConfig.COLLECTOR_PORT_PROPERTY_KEY));
     assertEquals("http", properties.get(LightstepConfig.COLLECTOR_PROTOCOL_PROPERTY_KEY));
     assertEquals("test", properties.get(LightstepConfig.SERVICE_NAME_PROPERTY_KEY));
     assertEquals("1.0", properties.get(LightstepConfig.SERVICE_VERSION_PROPERTY_KEY));
+    assertEquals("1234", properties.get(LightstepConfig.DEADLINE_MILLIS_PROPERTY_KEY));
   }
 
   @Test
