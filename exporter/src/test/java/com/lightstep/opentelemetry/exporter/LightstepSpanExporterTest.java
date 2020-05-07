@@ -2,6 +2,7 @@ package com.lightstep.opentelemetry.exporter;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -11,12 +12,15 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import com.lightstep.opentelemetry.exporter.LightstepSpanExporter.Builder;
 import com.lightstep.tracer.grpc.KeyValue;
 import com.lightstep.tracer.grpc.ReportRequest;
 import com.lightstep.tracer.grpc.ReportResponse;
 import com.lightstep.tracer.grpc.Reporter;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
+import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
 import io.opentelemetry.sdk.trace.export.SpanExporter.ResultCode;
@@ -24,6 +28,7 @@ import io.opentelemetry.trace.Span.Kind;
 import io.opentelemetry.trace.SpanId;
 import io.opentelemetry.trace.Status;
 import io.opentelemetry.trace.TraceId;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +76,7 @@ public class LightstepSpanExporterTest {
     final ResultCode resultCode = exporter.export(Collections.singletonList(spanData));
     assertEquals(ResultCode.SUCCESS, resultCode);
 
+    assertEquals(ResultCode.SUCCESS, exporter.flush());
     exporter.shutdown();
 
     final List<ServeEvent> events = WireMock.getAllServeEvents();
@@ -97,7 +103,10 @@ public class LightstepSpanExporterTest {
     final Span span = reportRequest.getSpans(0);
     assertEquals("GET /api/endpoint", span.getOperationName());
     assertEquals(900000L, span.getDurationMicros());
-    assertEquals(4, span.getTagsCount());
+    assertEquals(5, span.getTagsCount());
+
+    // Verify that Resources are added as tags to span
+    assertTrue(tagEquals(span.getTagsList(), "resource_key", "resource_value"));
 
     // Verify that "service.version" tag is set to correct value
     assertTrue(tagEquals(span.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY, "1.0"));
@@ -144,6 +153,39 @@ public class LightstepSpanExporterTest {
     verifyServiceVersion(exporter, null);
   }
 
+  @Test
+  public void testFromConfigFile() throws Exception {
+    final LightstepSpanExporter exporter = Builder
+        .fromConfigFile("src/test/resources/config.properties").build();
+
+    assertThat(exporter.getCollectorUrl())
+        .isEqualTo(new URL("http://localhost:8360/api/v2/reports"));
+
+    assertThat(exporter.getServiceName()).isEqualTo("test");
+    assertThat(exporter.getServiceVersion()).isEqualTo("1.0");
+    assertThat(exporter.getAuth().getAccessToken()).isEqualTo("XXXXXXXXXX");
+    assertThat(exporter.getLsSpanAttributes()).hasSize(2);
+
+    final KeyValue hostnameKeyValue = exporter.getLsSpanAttributes().get(0);
+    assertThat(hostnameKeyValue.getKey()).isEqualTo(LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY);
+    assertThat(hostnameKeyValue.getStringValue()).isNotBlank();
+
+    final KeyValue serviceVersionKeyValue = exporter.getLsSpanAttributes().get(1);
+    assertThat(serviceVersionKeyValue.getKey())
+        .isEqualTo(LightstepSpanExporter.SERVICE_VERSION_KEY);
+    assertThat(serviceVersionKeyValue.getStringValue()).isEqualTo("1.0");
+
+    final Reporter reporter = exporter.getReporter();
+    final List<KeyValue> tags = reporter.getTagsList();
+    tagEquals(tags, LightstepSpanExporter.COMPONENT_NAME_KEY, "test");
+    tagEquals(tags, LightstepSpanExporter.LIGHTSTEP_HOSTNAME_KEY,
+        hostnameKeyValue.getStringValue());
+    tagEquals(tags, LightstepSpanExporter.LIGHTSTEP_TRACER_PLATFORM_KEY, "jre");
+    tagEquals(tags, LightstepSpanExporter.SERVICE_VERSION_KEY, "1.0");
+    tagEquals(tags, LightstepSpanExporter.LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY,
+        System.getProperty("java.version"));
+  }
+
   private void verifyServiceVersion(LightstepSpanExporter exporter, String serviceVersion)
       throws Exception {
     long duration = 900; // ms
@@ -184,12 +226,12 @@ public class LightstepSpanExporterTest {
     assertEquals(1, reportRequest.getSpansCount());
     final Span span = reportRequest.getSpans(0);
     if (serviceVersion != null && !serviceVersion.isEmpty()) {
-      assertEquals(4, span.getTagsCount());
+      assertEquals(5, span.getTagsCount());
       // Verify that "service.version" tag is set to correct value
       assertTrue(
           tagEquals(span.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY, serviceVersion));
     } else {
-      assertEquals(3, span.getTagsCount());
+      assertEquals(4, span.getTagsCount());
       // Verify that "service.version" tag is missing
       assertFalse(tagExist(span.getTagsList(), LightstepSpanExporter.SERVICE_VERSION_KEY));
     }
@@ -213,6 +255,9 @@ public class LightstepSpanExporterTest {
         .setLinks(Collections.<Link>emptyList())
         .setTotalRecordedLinks(0)
         .setTotalRecordedEvents(0)
+        .setResource(Resource
+            .create((Collections.singletonMap("resource_key",
+                AttributeValue.stringAttributeValue("resource_value")))))
         .build();
   }
 
