@@ -1,5 +1,6 @@
 package com.lightstep.opentelemetry.exporter;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.lightstep.tracer.grpc.Auth;
 import com.lightstep.tracer.grpc.KeyValue;
 import com.lightstep.tracer.grpc.ReportRequest;
@@ -47,12 +48,12 @@ public class LightstepSpanExporter implements SpanExporter {
   private static final String GUID_KEY = "lightstep.guid";
 
   // TODO: shouldn't be replaced by lightstep.service_name?
-  private static final String COMPONENT_NAME_KEY = "lightstep.component_name";
+  static final String COMPONENT_NAME_KEY = "lightstep.component_name";
   static final String SERVICE_VERSION_KEY = "service.version";
 
   static final String LIGHTSTEP_HOSTNAME_KEY = "lightstep.hostname";
-  private static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
-  private static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
+  static final String LIGHTSTEP_TRACER_PLATFORM_KEY = "lightstep.tracer_platform";
+  static final String LIGHTSTEP_TRACER_PLATFORM_VERSION_KEY =
       "lightstep.tracer_platform_version";
 
 
@@ -483,7 +484,8 @@ public class LightstepSpanExporter implements SpanExporter {
       }
     }
 
-    private URL getCollectorUrl() throws MalformedURLException {
+    @VisibleForTesting
+    URL getCollectorUrl() throws MalformedURLException {
       int port = getPort();
       return new URL(collectorProtocol, collectorHost, port, PATH);
     }
@@ -526,6 +528,56 @@ public class LightstepSpanExporter implements SpanExporter {
       }
       return val;
     }
+
+    @VisibleForTesting
+    long getDeadlineMillis() {
+      return deadlineMillis;
+    }
+
+    @VisibleForTesting
+    String getAccessToken() {
+      return accessToken;
+    }
+
+    @VisibleForTesting
+    String getServiceName() {
+      return serviceName;
+    }
+
+    @VisibleForTesting
+    String getServiceVersion() {
+      return serviceVersion;
+    }
+  }
+
+  @VisibleForTesting
+  URL getCollectorUrl() {
+    return collectorUrl;
+  }
+
+  @VisibleForTesting
+  String getServiceName() {
+    return serviceName;
+  }
+
+  @VisibleForTesting
+  String getServiceVersion() {
+    return serviceVersion;
+  }
+
+  @VisibleForTesting
+  Auth.Builder getAuth() {
+    return auth;
+  }
+
+  @VisibleForTesting
+  List<KeyValue> getLsSpanAttributes() {
+    return lsSpanAttributes;
+  }
+
+  @VisibleForTesting
+  Reporter getReporter() {
+    return reporter;
   }
 
 }

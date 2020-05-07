@@ -1,5 +1,6 @@
 package com.lightstep.opentelemetry.exporter;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -93,7 +94,8 @@ public class LightstepConfig {
     }
   }
 
-  private static String getHostName() {
+  @VisibleForTesting
+  static String getHostName() {
     try {
       return InetAddress.getLocalHost().getHostName();
     } catch (final IOException e) {
