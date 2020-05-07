@@ -19,13 +19,16 @@
   </modules>
 
   <properties>
-    <grpc.version>1.24.0</grpc.version>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
-    <opentelemetry.version>0.3.0</opentelemetry.version>
     <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <protobuf.version>3.9.0</protobuf.version>
+    <opentelemetry.version>0.4.0</opentelemetry.version>
+    <grpc.version>1.28.0</grpc.version>
+    <protobuf.version>3.11.4</protobuf.version>
+    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+    <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+    <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
   </properties>
 
   <organization>
