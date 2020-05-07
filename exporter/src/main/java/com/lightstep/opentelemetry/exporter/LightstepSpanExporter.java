@@ -580,4 +580,8 @@ public class LightstepSpanExporter implements SpanExporter {
     return reporter;
   }
 
+  @VisibleForTesting
+  OkHttpClient getClient() {
+    return client;
+  }
 }

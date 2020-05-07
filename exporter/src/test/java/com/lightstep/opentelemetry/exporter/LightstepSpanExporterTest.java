@@ -164,6 +164,7 @@ public class LightstepSpanExporterTest {
     assertThat(exporter.getServiceName()).isEqualTo("test");
     assertThat(exporter.getServiceVersion()).isEqualTo("1.0");
     assertThat(exporter.getAuth().getAccessToken()).isEqualTo("XXXXXXXXXX");
+    assertThat(exporter.getClient().connectTimeoutMillis()).isEqualTo(1234);
     assertThat(exporter.getLsSpanAttributes()).hasSize(2);
 
     final KeyValue hostnameKeyValue = exporter.getLsSpanAttributes().get(0);
