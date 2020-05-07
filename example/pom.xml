@@ -6,7 +6,7 @@
 
   <groupId>com.lightstep.opentelemetry</groupId>
   <artifactId>lightstep-opentelemetry-example</artifactId>
-  <version>0.2.2</version>
+  <version>0.1.0-SNAPSHOT</version>
 
   <name>Lightstep OpenTelemetry Exporter Example</name>
   <description>Lightstep OpenTelemetry Exporter Example</description>
