@@ -34,9 +34,9 @@ import org.junit.Test;
 
 public class AdapterTest {
   private static final String LINK_TRACE_ID =
-      "39431247078c75c1af46e0665b912ea9"; // 4126161779880129985
+      "463ac35c9f6413ad48485a3953bb6124"; // 5208512171318403364L (trimmed)
   private static final String LINK_SPAN_ID = "0000000000fed456"; // 16700502
-  private static final String TRACE_ID = "39431247078c75c1af46e0665b912ea9"; // 4126161779880129985
+  private static final String TRACE_ID = "463ac35c9f6413ad48485a3953bb6124"; // 5208512171318403364L (trimmed)
   private static final String SPAN_ID = "0000000000def456"; // 14611542
   private static final String PARENT_SPAN_ID = "0000000000aef789"; // 11466633
 
@@ -94,7 +94,7 @@ public class AdapterTest {
     boolean found = false;
     for (Reference spanRef : lightStepSpan.getReferencesList()) {
       if (Relationship.FOLLOWS_FROM.equals(spanRef.getRelationship())) {
-        assertEquals(4126161779880129985L, spanRef.getSpanContext().getTraceId());
+        assertEquals(5208512171318403364L, spanRef.getSpanContext().getTraceId());
         assertEquals(16700502, spanRef.getSpanContext().getSpanId());
         found = true;
       }
@@ -106,7 +106,7 @@ public class AdapterTest {
     boolean found = false;
     for (Reference spanRef : lightStepSpan.getReferencesList()) {
       if (Reference.Relationship.CHILD_OF.equals(spanRef.getRelationship())) {
-        assertEquals(4126161779880129985L, spanRef.getSpanContext().getTraceId());
+        assertEquals(5208512171318403364L, spanRef.getSpanContext().getTraceId());
         assertEquals(11466633, spanRef.getSpanContext().getSpanId());
         found = true;
       }
@@ -140,7 +140,7 @@ public class AdapterTest {
     final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter.toLightstepSpan(span,
         new ArrayList<KeyValue>());
 
-    assertEquals(4126161779880129985L, lightstepSpan.getSpanContext().getTraceId());
+    assertEquals(5208512171318403364L, lightstepSpan.getSpanContext().getTraceId());
     assertEquals(14611542, lightstepSpan.getSpanContext().getSpanId());
 
     assertEquals("GET /api/endpoint", lightstepSpan.getOperationName());
@@ -264,7 +264,7 @@ public class AdapterTest {
 
     // verify
     assertEquals(14611542, spanRef.getSpanContext().getSpanId());
-    assertEquals(4126161779880129985L, spanRef.getSpanContext().getTraceId());
+    assertEquals(5208512171318403364L, spanRef.getSpanContext().getTraceId());
     assertEquals(Reference.Relationship.FOLLOWS_FROM, spanRef.getRelationship());
   }
 
@@ -293,9 +293,9 @@ public class AdapterTest {
   public void testTraceIdToLong() {
     final TraceId traceId = TraceId.fromLowerBase16(TRACE_ID, 0);
     final long traceIdLong = Adapter.traceIdToLong(traceId);
-    assertEquals(4126161779880129985L, traceIdLong);
+    assertEquals(5208512171318403364L, traceIdLong);
 
-    final TraceId traceId2 = new TraceId(123456789L, 0L);
+    final TraceId traceId2 = new TraceId(0L, 123456789L);
     final long traceIdLong2 = Adapter.traceIdToLong(traceId2);
     assertEquals(123456789L, traceIdLong2);
   }

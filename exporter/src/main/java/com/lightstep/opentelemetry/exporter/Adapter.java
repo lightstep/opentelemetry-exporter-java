@@ -252,9 +252,12 @@ final class Adapter {
   }
 
   private static ByteString toByteString(TraceId traceId) {
-    byte[] traceIdBytes = new byte[TraceId.getSize()];
+    int traceIdSize = TraceId.getSize();
+    byte[] traceIdBytes = new byte[traceIdSize];
     traceId.copyBytesTo(traceIdBytes, 0);
-    return ByteString.copyFrom(traceIdBytes);
+    // Use the 64 least significant bits, represented by the right-most
+    // 8 bytes. See https://github.com/openzipkin/b3-propagation#traceid-1
+    return ByteString.copyFrom(traceIdBytes, traceIdSize / 2, traceIdSize / 2);
   }
 
   private static ByteString toByteString(SpanId spanId) {

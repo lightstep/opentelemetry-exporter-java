@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(JUnitParamsRunner.class)
 public class LightstepSpanExporterTest {
-  private static final String TRACE_ID = "39431247078c75c1af46e0665b912ea9";
+  private static final String TRACE_ID = "463ac35c9f6413ad48485a3953bb6124";
   private static final String SPAN_ID = "1213141516171819";
 
   @Rule
@@ -117,7 +117,7 @@ public class LightstepSpanExporterTest {
 
     final SpanContext spanContext = span.getSpanContext();
     assertEquals(1302406798037686297L, spanContext.getSpanId());
-    assertEquals(4126161779880129985L, spanContext.getTraceId());
+    assertEquals(5208512171318403364L, spanContext.getTraceId()); // trimmed id.
   }
 
   public String[] getServiceVersions() {
