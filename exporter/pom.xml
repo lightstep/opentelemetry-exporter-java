@@ -7,7 +7,7 @@
   <parent>
     <artifactId>lightstep-opentelemetry-parent</artifactId>
     <groupId>com.lightstep.opentelemetry</groupId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
   </parent>
 
   <artifactId>lightstep-opentelemetry-exporter</artifactId>
