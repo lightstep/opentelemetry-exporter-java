@@ -34,6 +34,7 @@ final class Adapter {
   static final String KEY_SPAN_KIND = "span.kind";
   static final String KEY_SPAN_STATUS_MESSAGE = "span.status.message";
   static final String KEY_SPAN_STATUS_CODE = "span.status.code";
+  static final String KEY_ERROR = "error";
 
   private Adapter() {
   }
@@ -121,6 +122,14 @@ final class Adapter {
             .setKey(KEY_SPAN_STATUS_CODE)
             .setIntValue(spanData.getStatus().getCanonicalCode().value())
             .build());
+
+    if (!spanData.getStatus().isOk()) {
+      builder.addTags(
+          KeyValue.newBuilder()
+              .setKey(KEY_ERROR)
+              .setBoolValue(true)
+              .build());
+    }
 
     return builder.build();
   }

@@ -1,5 +1,6 @@
 package com.lightstep.opentelemetry.exporter;
 
+import static com.lightstep.opentelemetry.exporter.Adapter.KEY_ERROR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -286,7 +287,21 @@ public class AdapterTest {
             .setTotalRecordedLinks(0)
             .build();
 
-    assertNotNull(Adapter.toLightstepSpan(span, new ArrayList<KeyValue>()));
+    final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter
+            .toLightstepSpan(span, new ArrayList<KeyValue>());
+    assertNotNull(lightstepSpan);
+    boolean foundError = findErrorTag(lightstepSpan);
+    assertTrue(foundError);
+  }
+
+  private static boolean findErrorTag(com.lightstep.tracer.grpc.Span lightstepSpan) {
+    for (KeyValue keyValue : lightstepSpan.getTagsList()) {
+      if (keyValue.getKey().equals(KEY_ERROR)) {
+        assertTrue(keyValue.getBoolValue());
+        return true;
+      }
+    }
+    return false;
   }
 
   @Test
