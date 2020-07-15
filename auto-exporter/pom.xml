@@ -25,7 +25,7 @@
 
     <dependency>
       <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-contrib-auto-config</artifactId>
+      <artifactId>opentelemetry-sdk-extension-auto-config</artifactId>
       <version>${opentelemetry.version}</version>
     </dependency>
 

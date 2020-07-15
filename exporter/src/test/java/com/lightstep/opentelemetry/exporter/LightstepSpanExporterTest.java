@@ -20,9 +20,11 @@ import com.lightstep.tracer.grpc.Reporter;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
 import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
+import io.opentelemetry.sdk.trace.data.test.TestSpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter.ResultCode;
 import io.opentelemetry.trace.Span.Kind;
 import io.opentelemetry.trace.SpanId;
@@ -244,7 +246,7 @@ public class LightstepSpanExporterTest {
   }
 
   private SpanData spanData(long startMs, long endMs) {
-    return SpanData.newBuilder()
+    return TestSpanData.newBuilder()
         .setHasEnded(true)
         .setTraceId(TraceId.fromLowerBase16(TRACE_ID, 0))
         .setSpanId(SpanId.fromLowerBase16(SPAN_ID, 0))
@@ -257,8 +259,8 @@ public class LightstepSpanExporterTest {
         .setTotalRecordedLinks(0)
         .setTotalRecordedEvents(0)
         .setResource(Resource
-            .create((Collections.singletonMap("resource_key",
-                AttributeValue.stringAttributeValue("resource_value")))))
+            .create(Attributes.of("resource_key",
+                                  AttributeValue.stringAttributeValue("resource_value"))))
         .build();
   }
 

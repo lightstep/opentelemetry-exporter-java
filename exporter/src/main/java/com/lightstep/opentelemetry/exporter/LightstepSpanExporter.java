@@ -9,7 +9,7 @@ import com.lightstep.tracer.grpc.Reporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
-import io.opentelemetry.sdk.trace.export.BatchSpansProcessor;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -509,7 +509,7 @@ public class LightstepSpanExporter implements SpanExporter {
      * @param tracerSdkProvider tracer SDK provider
      */
     public void install(TracerSdkProvider tracerSdkProvider) throws MalformedURLException {
-      BatchSpansProcessor spansProcessor = BatchSpansProcessor.create(this.build());
+      BatchSpanProcessor spansProcessor = BatchSpanProcessor.newBuilder(this.build()).build();
       tracerSdkProvider.addSpanProcessor(spansProcessor);
     }
 
@@ -517,7 +517,7 @@ public class LightstepSpanExporter implements SpanExporter {
      * Installs exporter into tracer SDK default provider with batching span processor.
      */
     public void install() throws MalformedURLException {
-      BatchSpansProcessor spansProcessor = BatchSpansProcessor.create(this.build());
+      BatchSpanProcessor spansProcessor = BatchSpanProcessor.newBuilder(this.build()).build();
       OpenTelemetrySdk.getTracerProvider().addSpanProcessor(spansProcessor);
     }
 

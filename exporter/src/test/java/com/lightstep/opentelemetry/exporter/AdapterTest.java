@@ -13,10 +13,13 @@ import com.lightstep.tracer.grpc.Log;
 import com.lightstep.tracer.grpc.Reference;
 import com.lightstep.tracer.grpc.Reference.Relationship;
 import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.common.Attributes;
 import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.data.EventImpl;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.data.SpanData.Event;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
-import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
+import io.opentelemetry.sdk.trace.data.test.TestSpanData;
 import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.SpanContext;
 import io.opentelemetry.trace.SpanId;
@@ -28,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.junit.Test;
@@ -43,11 +45,11 @@ public class AdapterTest {
 
   private static SpanData getSpanData(long startMs, long endMs) {
     AttributeValue valueB = AttributeValue.booleanAttributeValue(true);
-    Map<String, AttributeValue> attributes = ImmutableMap.of("valueB", valueB);
+    Attributes attributes = Attributes.of("valueB", valueB);
 
     Link link = SpanData.Link.create(createSpanContext(LINK_TRACE_ID, LINK_SPAN_ID), attributes);
 
-    return SpanData.newBuilder()
+    return TestSpanData.newBuilder()
         .setHasEnded(true)
         .setTraceId(TraceId.fromLowerBase16(TRACE_ID, 0))
         .setSpanId(SpanId.fromLowerBase16(SPAN_ID, 0))
@@ -56,12 +58,12 @@ public class AdapterTest {
         .setStartEpochNanos(TimeUnit.MILLISECONDS.toNanos(startMs))
         .setEndEpochNanos(TimeUnit.MILLISECONDS.toNanos(endMs))
         .setAttributes(attributes)
-        .setTimedEvents(Collections.singletonList(getTimedEvent()))
+        .setEvents(Collections.singletonList(getTimedEvent()))
         .setTotalRecordedEvents(1)
         .setLinks(Collections.singletonList(link))
         .setTotalRecordedLinks(1)
         .setKind(Span.Kind.SERVER)
-        .setResource(Resource.create(Collections.<String, AttributeValue>emptyMap()))
+        .setResource(Resource.create(Attributes.empty()))
         .setStatus(Status.OK)
         .build();
   }
@@ -74,11 +76,11 @@ public class AdapterTest {
         TraceState.builder().build());
   }
 
-  private static TimedEvent getTimedEvent() {
+  private static Event getTimedEvent() {
     long epochNanos = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
     AttributeValue valueS = AttributeValue.stringAttributeValue("bar");
-    ImmutableMap<String, AttributeValue> attributes = ImmutableMap.of("foo", valueS);
-    return TimedEvent.create(epochNanos, "the log message", attributes);
+    Attributes attributes = Attributes.of("foo", valueS);
+    return EventImpl.create(epochNanos, "the log message", attributes);
   }
 
   @Nullable
@@ -179,7 +181,7 @@ public class AdapterTest {
   @Test
   public void testLightstepLogs() {
     // prepare
-    SpanData.TimedEvent timedEvents = getTimedEvent();
+    SpanData.Event timedEvents = getTimedEvent();
 
     // test
     List<Log> logs = Adapter.toLightstepLogs(Collections.singletonList(timedEvents));
@@ -191,7 +193,7 @@ public class AdapterTest {
   @Test
   public void testLightstepLog() {
     // prepare
-    SpanData.TimedEvent timedEvent = getTimedEvent();
+    SpanData.Event timedEvent = getTimedEvent();
 
     // test
     Log log = Adapter.toLightstepLog(timedEvent);
@@ -214,7 +216,7 @@ public class AdapterTest {
 
     // test
     Collection<KeyValue> keyValues =
-        Adapter.toKeyValues(Collections.singletonMap("valueB", valueB));
+        Adapter.toKeyValues(Attributes.of("valueB", valueB));
 
     // verify
     // the actual content is checked in some other test
@@ -274,7 +276,7 @@ public class AdapterTest {
     long startMs = System.currentTimeMillis();
     long endMs = startMs + 900;
     SpanData span =
-        SpanData.newBuilder()
+            TestSpanData.newBuilder()
             .setHasEnded(true)
             .setTraceId(TraceId.fromLowerBase16(TRACE_ID, 0))
             .setSpanId(SpanId.fromLowerBase16(SPAN_ID, 0))

@@ -9,7 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 
 import com.lightstep.opentelemetry.exporter.LightstepConfig;
-import io.opentelemetry.sdk.contrib.auto.config.Config;
+import io.opentelemetry.sdk.extensions.auto.config.Config;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
