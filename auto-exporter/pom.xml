@@ -98,7 +98,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.4</version>
         <configuration>
           <filters>
             <filter>
@@ -122,6 +122,10 @@
                 <relocation>
                   <pattern>okhttp</pattern>
                   <shadedPattern>shaded.okhttp</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>okio</pattern>
+                  <shadedPattern>shaded.okio</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>io.grpc</pattern>
