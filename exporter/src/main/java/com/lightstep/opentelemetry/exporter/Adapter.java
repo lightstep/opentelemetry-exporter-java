@@ -12,17 +12,17 @@ import com.lightstep.tracer.grpc.Reference.Relationship;
 import com.lightstep.tracer.grpc.Span;
 import com.lightstep.tracer.grpc.SpanContext;
 import io.opentelemetry.common.AttributeValue;
+import io.opentelemetry.common.ReadableAttributes;
+import io.opentelemetry.common.ReadableKeyValuePairs.KeyValueConsumer;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.sdk.trace.data.SpanData.Event;
 import io.opentelemetry.sdk.trace.data.SpanData.Link;
-import io.opentelemetry.sdk.trace.data.SpanData.TimedEvent;
 import io.opentelemetry.trace.SpanId;
 import io.opentelemetry.trace.TraceId;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -87,7 +87,7 @@ final class Adapter {
       builder.addAllTags(lsSpanAttributes);
     }
 
-    builder.addAllLogs(toLightstepLogs(spanData.getTimedEvents()));
+    builder.addAllLogs(toLightstepLogs(spanData.getEvents()));
 
     builder.addAllReferences(toReferences(spanData.getLinks()));
 
@@ -167,29 +167,29 @@ final class Adapter {
   }
 
   /**
-   * Converts {@link SpanData.TimedEvent}s into a collection of Lightstep's {@link Log}.
+   * Converts {@link SpanData.Event}s into a collection of Lightstep's {@link Log}.
    *
    * @param timeEvents the timed events to be converted
    * @return a collection of Lightstep logs
-   * @see #toLightstepLog(TimedEvent)
+   * @see #toLightstepLog(Event)
    */
   @VisibleForTesting
-  static List<Log> toLightstepLogs(List<TimedEvent> timeEvents) {
+  static List<Log> toLightstepLogs(List<Event> timeEvents) {
     final List<Log> logs = new ArrayList<>();
-    for (TimedEvent timedEvent : timeEvents) {
+    for (Event timedEvent : timeEvents) {
       logs.add(toLightstepLog(timedEvent));
     }
     return logs;
   }
 
   /**
-   * Converts a {@link SpanData.TimedEvent} into Lightstep's {@link Log}.
+   * Converts a {@link SpanData.Event} into Lightstep's {@link Log}.
    *
    * @param timedEvent the timed event to be converted
    * @return a Lightstep log
    */
   @VisibleForTesting
-  static Log toLightstepLog(TimedEvent timedEvent) {
+  static Log toLightstepLog(Event timedEvent) {
     final Log.Builder builder = Log.newBuilder();
     builder.setTimestamp(Timestamps.fromNanos(timedEvent.getEpochNanos()));
     builder.addFields(
@@ -207,11 +207,14 @@ final class Adapter {
    * @see #toKeyValue(String, AttributeValue)
    */
   @VisibleForTesting
-  static List<KeyValue> toKeyValues(Map<String, AttributeValue> attributes) {
+  static List<KeyValue> toKeyValues(ReadableAttributes attributes) {
     final List<KeyValue> keyValues = new ArrayList<>();
-    for (Entry<String, AttributeValue> entry : attributes.entrySet()) {
-      keyValues.add(toKeyValue(entry.getKey(), entry.getValue()));
-    }
+    attributes.forEach(new KeyValueConsumer<AttributeValue>() {
+      @Override
+      public void consume(String key, AttributeValue value) {
+        keyValues.add(toKeyValue(key, value));
+      }
+    });
 
     return keyValues;
   }
