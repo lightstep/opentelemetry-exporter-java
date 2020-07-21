@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.util.Durations;
 import com.google.protobuf.util.Timestamps;
 import com.lightstep.tracer.grpc.KeyValue;
@@ -276,7 +275,7 @@ public class AdapterTest {
     long startMs = System.currentTimeMillis();
     long endMs = startMs + 900;
     SpanData span =
-            TestSpanData.newBuilder()
+        TestSpanData.newBuilder()
             .setHasEnded(true)
             .setTraceId(TraceId.fromLowerBase16(TRACE_ID, 0))
             .setSpanId(SpanId.fromLowerBase16(SPAN_ID, 0))
@@ -290,7 +289,7 @@ public class AdapterTest {
             .build();
 
     final com.lightstep.tracer.grpc.Span lightstepSpan = Adapter
-            .toLightstepSpan(span, new ArrayList<KeyValue>());
+        .toLightstepSpan(span, new ArrayList<KeyValue>());
     assertNotNull(lightstepSpan);
     boolean foundError = findErrorTag(lightstepSpan);
     assertTrue(foundError);

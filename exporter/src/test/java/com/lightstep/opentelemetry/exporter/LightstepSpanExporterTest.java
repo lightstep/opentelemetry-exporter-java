@@ -260,7 +260,7 @@ public class LightstepSpanExporterTest {
         .setTotalRecordedEvents(0)
         .setResource(Resource
             .create(Attributes.of("resource_key",
-                                  AttributeValue.stringAttributeValue("resource_value"))))
+                AttributeValue.stringAttributeValue("resource_value"))))
         .build();
   }
 
