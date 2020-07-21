@@ -7,7 +7,7 @@ The Lightstep OpenTelemetry Exporter is a trace exporter that sends span data to
 ```xml
 <dependency>
     <groupId>com.lightstep.opentelemetry</groupId>
-    <artifactId>opentelemetry-exporter-java</artifactId>
+    <artifactId>lightstep-opentelemetry-exporter</artifactId>
     <version>VERSION</version>
 </dependency>
 ```
