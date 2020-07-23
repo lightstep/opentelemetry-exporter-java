@@ -31,7 +31,7 @@ LightstepSpanExporter exporter = builder.build();
 
 // Add Span Processor with Lightstep exporter
 OpenTelemetrySdk.getTracerProvider()
-        .addSpanProcessor(SimpleSpansProcessor.create(lightStepSpanExporter));
+        .addSpanProcessor(SimpleSpanProcessor.newBuilder(lightStepSpanExporter).build());
 ```
 
 ### Configuration from system properties and environmental variables

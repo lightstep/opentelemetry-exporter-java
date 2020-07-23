@@ -3,7 +3,7 @@ package com.lightstep.opentelemetry.exporter.example;
 import com.lightstep.opentelemetry.exporter.LightstepSpanExporter;
 import io.opentelemetry.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.trace.export.SimpleSpansProcessor;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.trace.Span;
 import io.opentelemetry.trace.Span.Kind;
 import io.opentelemetry.trace.Tracer;
@@ -27,7 +27,7 @@ public class App {
         .build();
 
     OpenTelemetrySdk.getTracerProvider()
-        .addSpanProcessor(SimpleSpansProcessor.newBuilder(lightStepSpanExporter).build());
+        .addSpanProcessor(SimpleSpanProcessor.newBuilder(lightStepSpanExporter).build());
 
     Span span = tracer.spanBuilder("start example").setSpanKind(Kind.CLIENT).startSpan();
     span.setAttribute("Attribute 1", "Value 1");
